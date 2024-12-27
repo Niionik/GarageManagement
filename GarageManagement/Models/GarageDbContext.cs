@@ -1,6 +1,8 @@
 ﻿using GarageManagement.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Data.Entity;
+using DbContext = System.Data.Entity.DbContext;
+
 
 namespace YourNamespace.Models
 {
@@ -10,10 +12,10 @@ namespace YourNamespace.Models
 
         public GarageDbContext() : base(V) { }
 
-        public DbSet<Car> Cars { get; set; }
-        public DbSet<Maintenance> Maintenances { get; set; }
-        public DbSet<Owner> Owners { get; set; }
-        public DbSet<Garage> Garages { get; set; }
-        public DbSet<GarageCar> GarageCars { get; set; }
+        public System.Data.Entity.DbSet<Car> Cars { get; set; }
+        public System.Data.Entity.DbSet<Maintenance> Maintenances { get; set; }
+        public System.Data.Entity.DbSet<Owner> Owners { get; set; }
+        public System.Data.Entity.DbSet<Garage> Garages { get; set; }
+        public System.Data.Entity.DbSet<GarageCar> GarageCars { get; set; }
     }
 }
