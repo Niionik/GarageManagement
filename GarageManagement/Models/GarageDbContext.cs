@@ -6,7 +6,7 @@ namespace GarageManagement.Models
     {
         public GarageDbContext(DbContextOptions<GarageDbContext> options) : base(options) { }
 
-        public DbSet<Car> Cars { get; set; }
+        public DbSet<Car> Car { get; set; }
         public DbSet<Maintenance> Maintenances { get; set; }
         public DbSet<Owner> Owners { get; set; }
         public DbSet<Garage> Garages { get; set; }
