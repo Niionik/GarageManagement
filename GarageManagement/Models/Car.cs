@@ -9,6 +9,8 @@
         public int Mileage { get; set; }
         public string Status { get; set; } // Active, Repair, Broken
         public string WheelModel { get; set; }
+
+
         public string TireSize { get; set; }
         public string TireBrand { get; set; }
         public DateTime? LastOilChange { get; set; }
