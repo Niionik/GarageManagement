@@ -1,21 +1,37 @@
 ﻿using GarageManagement.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Data.Entity;
-using DbContext = System.Data.Entity.DbContext;
-
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using DbContext = Microsoft.EntityFrameworkCore.DbContext;
 
 namespace YourNamespace.Models
 {
     public class GarageDbContext : DbContext
     {
-        private const string V = "GarageDbContext";
+        public GarageDbContext(DbContextOptions<GarageDbContext> options) : base(options) { }
 
-        public GarageDbContext() : base(V) { }
+        public DbSet<Car>? Cars { get; set; }
+        public DbSet<Maintenance>? Maintenances { get; set; }
+        public DbSet<Owner>? Owners { get; set; }
+        public DbSet<Garage>? Garages { get; set; }
+        public DbSet<GarageCar>? GarageCars { get; set; }
 
-        public System.Data.Entity.DbSet<Car> Cars { get; set; }
-        public System.Data.Entity.DbSet<Maintenance> Maintenances { get; set; }
-        public System.Data.Entity.DbSet<Owner> Owners { get; set; }
-        public System.Data.Entity.DbSet<Garage> Garages { get; set; }
-        public System.Data.Entity.DbSet<GarageCar> GarageCars { get; set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.ApplyConfiguration(new GarageEntityConfiguration());
+        }
+    }
+
+    public class GarageEntityConfiguration : IEntityTypeConfiguration<Garage>
+    {
+        public void Configure(EntityTypeBuilder<Garage> builder)
+        {
+            builder.Property(x => x.Name)
+                .HasMaxLength(255)
+                .IsRequired();
+
+            builder.Property(x => x.Location)
+                .HasMaxLength(255);
+        }
     }
 }
