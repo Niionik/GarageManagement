@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using GarageManagement.Models;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using System.Configuration;
+using GarageManagement.Models;
 
 namespace GarageManagement.Controllers
 {
@@ -15,21 +13,48 @@ namespace GarageManagement.Controllers
             _context = context;
         }
 
-        public IActionResult Index(int garageId)
+        public async Task<IActionResult> Index()
         {
-            var cars = _context.GarageCars
-                .Where(gc => gc.GarageId == garageId)
-                .Select(gc => gc.Car)
-                .ToList();
+            var cars = await _context.Cars.ToListAsync();
             return View(cars);
         }
 
-        public IActionResult Details(int garageId, int carId)
+        public IActionResult Create()
         {
-            var car = _context.GarageCars
-                .Where(gc => gc.GarageId == garageId && gc.CarId == carId)
-                .Select(gc => gc.Car)
-                .FirstOrDefault();
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Brand,Model,Year,Mileage,Status,WheelModel,TireSize,TireBrand")] Car car)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    car.Maintenances = new List<Maintenance>();
+                    car.GarageCars = new List<GarageCar>();
+                    _context.Add(car);
+                    await _context.SaveChangesAsync();
+                    TempData["Success"] = "Samochód został pomyślnie dodany.";
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Wystąpił błąd podczas zapisywania danych: " + ex.Message);
+            }
+            return View(car);
+        }
+
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var car = await _context.Cars.FindAsync(id);
             if (car == null)
             {
                 return NotFound();
@@ -37,98 +62,99 @@ namespace GarageManagement.Controllers
             return View(car);
         }
 
-        public ActionResult Create()
-        {
-            return View();
-        }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(Car car)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Brand,Model,Year,Mileage,Status,WheelModel,TireSize,TireBrand")] Car car)
         {
-            if (ModelState.IsValid)
+            if (id != car.Id)
             {
-                _context.Cars.Add(car);
-                _context.SaveChanges();
-                return RedirectToAction(nameof(Index));
+                return NotFound();
+            }
+
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var existingCar = await _context.Cars.FindAsync(id);
+                    if (existingCar == null)
+                    {
+                        return NotFound();
+                    }
+
+                    existingCar.Brand = car.Brand;
+                    existingCar.Model = car.Model;
+                    existingCar.Year = car.Year;
+                    existingCar.Mileage = car.Mileage;
+                    existingCar.Status = car.Status;
+                    existingCar.WheelModel = car.WheelModel;
+                    existingCar.TireSize = car.TireSize;
+                    existingCar.TireBrand = car.TireBrand;
+
+                    await _context.SaveChangesAsync();
+                    TempData["Success"] = "Samochód został pomyślnie zaktualizowany.";
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Wystąpił błąd podczas aktualizacji danych: " + ex.Message);
             }
             return View(car);
         }
 
-        public ActionResult Edit(int id)
+        public async Task<IActionResult> Delete(int? id)
         {
-            var car = _context.Cars.Find(id);
-            if (car == null) return NotFound();
-            return View(car);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, Car car)
-        {
-            if (id != car.Id) return BadRequest();
-
-            if (ModelState.IsValid)
+            if (id == null)
             {
-                _context.Update(car);
-                _context.SaveChanges();
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
-            return View(car);
-        }
 
-        public ActionResult Delete(int id)
-        {
-            var car = _context.Cars.Find(id);
-            if (car == null) return NotFound();
+            var car = await _context.Cars
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (car == null)
+            {
+                return NotFound();
+            }
+
             return View(car);
         }
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var car = _context.Cars.Find(id);
-            if (car == null) return NotFound();
-
-            _context.Cars.Remove(car);
-            _context.SaveChanges();
+            var car = await _context.Cars.FindAsync(id);
+            if (car != null)
+            {
+                _context.Cars.Remove(car);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Samochód został pomyślnie usunięty.";
+            }
             return RedirectToAction(nameof(Index));
         }
-    }
-    public class Program
-    {
-        public static void Main(string[] args)
+
+        public async Task<IActionResult> Details(int? id)
         {
-            CreateHostBuilder(args).Build().Run();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var car = await _context.Cars
+                .Include(c => c.Maintenances)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (car == null)
+            {
+                return NotFound();
+            }
+
+            return View(car);
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
-    }
-
-    public class Startup
-    {
-        public IConfiguration Configuration { get; }
-
-        public Startup(IConfiguration configuration)
+        private bool CarExists(int id)
         {
-            Configuration = configuration;
+            return _context.Cars.Any(e => e.Id == id);
         }
-
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddDbContext<GarageDbContext>(options =>
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection"),
-                    sqlServerOptions => sqlServerOptions.EnableRetryOnFailure()));
-
-            services.AddControllersWithViews();
-        }
-
     }
 }
