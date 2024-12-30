@@ -3,7 +3,7 @@ use Garage;
 
 CREATE TABLE Car (
     Id INT IDENTITY(1,1) PRIMARY KEY,
-    Make NVARCHAR(50) NOT NULL,
+    Brand NVARCHAR(50) NOT NULL,
     Model NVARCHAR(50) NOT NULL,
     Year INT NOT NULL,
     Mileage INT NOT NULL,
