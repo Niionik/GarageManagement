@@ -15,13 +15,13 @@ namespace GarageManagement.Controllers
 
         public IActionResult Index()
         {
-            var garages = _context.Garage.ToList();
+            var garages = _context.Garages.ToList();
             return View(garages);
         }
 
         public IActionResult Details(int id)
         {
-            var garage = _context.Garage.Find(id);
+            var garage = _context.Garages.Find(id);
             if (garage == null)
             {
                 return NotFound();
@@ -40,7 +40,7 @@ namespace GarageManagement.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Garage.Add(garage);
+                _context.Garages.Add(garage);
                 _context.SaveChanges();
                 return RedirectToAction(nameof(Index));
             }
@@ -49,7 +49,7 @@ namespace GarageManagement.Controllers
 
         public IActionResult Edit(int id)
         {
-            var garage = _context.Garage.Find(id);
+            var garage = _context.Garages.Find(id);
             if (garage == null)
             {
                 return NotFound();
@@ -77,7 +77,7 @@ namespace GarageManagement.Controllers
 
         public IActionResult Delete(int id)
         {
-            var garage = _context.Garage.Find(id);
+            var garage = _context.Garages.Find(id);
             if (garage == null)
             {
                 return NotFound();
@@ -89,13 +89,13 @@ namespace GarageManagement.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
-            var garage = _context.Garage.Find(id);
+            var garage = _context.Garages.Find(id);
             if (garage == null)
             {
                 return NotFound();
             }
 
-            _context.Garage.Remove(garage);
+            _context.Garages.Remove(garage);
             _context.SaveChanges();
             return RedirectToAction(nameof(Index));
         }

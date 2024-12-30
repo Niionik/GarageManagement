@@ -1,13 +1,12 @@
-using GarageManagement.Models;
 using Microsoft.EntityFrameworkCore;
+using GarageManagement.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add DbContext
 builder.Services.AddDbContext<GarageDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("GarageDbContext")));
 
-// Add controllers with views
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
@@ -30,3 +29,5 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+

@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using GarageManagement.Models;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using System.Configuration;
 
 namespace GarageManagement.Controllers
 {
@@ -15,7 +17,7 @@ namespace GarageManagement.Controllers
 
         public IActionResult Index(int garageId)
         {
-            var cars = _context.Garage_Car
+            var cars = _context.GarageCars
                 .Where(gc => gc.GarageId == garageId)
                 .Select(gc => gc.Car)
                 .ToList();
@@ -24,7 +26,7 @@ namespace GarageManagement.Controllers
 
         public IActionResult Details(int garageId, int carId)
         {
-            var car = _context.Garage_Car
+            var car = _context.GarageCars
                 .Where(gc => gc.GarageId == garageId && gc.CarId == carId)
                 .Select(gc => gc.Car)
                 .FirstOrDefault();
@@ -93,5 +95,40 @@ namespace GarageManagement.Controllers
             _context.SaveChanges();
             return RedirectToAction(nameof(Index));
         }
+    }
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            CreateHostBuilder(args).Build().Run();
+        }
+
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                });
+    }
+
+    public class Startup
+    {
+        public IConfiguration Configuration { get; }
+
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddDbContext<GarageDbContext>(options =>
+                options.UseSqlServer(
+                    Configuration.GetConnectionString("DefaultConnection"),
+                    sqlServerOptions => sqlServerOptions.EnableRetryOnFailure()));
+
+            services.AddControllersWithViews();
+        }
+
     }
 }
