@@ -1,13 +1,11 @@
-
-﻿using GarageManagement.Models;
+using GarageManagement.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using DbContext = Microsoft.EntityFrameworkCore.DbContext;
-﻿using Microsoft.EntityFrameworkCore;
 
 namespace GarageManagement.Models
 {
-    public class GarageDbContext : DbContext
+    public class GarageDbContext : IdentityDbContext<Owner>
     {
         public GarageDbContext(DbContextOptions<GarageDbContext> options)
             : base(options)
@@ -15,15 +13,17 @@ namespace GarageManagement.Models
         }
 
         public DbSet<Car> Cars { get; set; }
-        public DbSet<Owner> Owners { get; set; }
         public DbSet<Maintenance> Maintenances { get; set; }
         public DbSet<Garage> Garages { get; set; }
         public DbSet<GarageCar> GarageCars { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Owner>().ToTable("AspNetUsers");
+
             modelBuilder.Entity<Car>().ToTable("Car");
-            modelBuilder.Entity<Owner>().ToTable("Owner");
             modelBuilder.Entity<Maintenance>().ToTable("Maintenance");
             modelBuilder.Entity<Garage>().ToTable("Garage");
             modelBuilder.Entity<GarageCar>().ToTable("GarageCar");
@@ -41,20 +41,20 @@ namespace GarageManagement.Models
                 .WithMany(c => c.GarageCars)
                 .HasForeignKey(gc => gc.CarId);
 
-            base.OnModelCreating(modelBuilder);
+            modelBuilder.ApplyConfiguration(new GarageEntityConfiguration());
         }
-        
-         public class GarageEntityConfiguration : IEntityTypeConfiguration<Garage>
-    {
-        public void Configure(EntityTypeBuilder<Garage> builder)
-        {
-            builder.Property(x => x.Name)
-                .HasMaxLength(255)
-                .IsRequired();
 
-            builder.Property(x => x.Location)
-                .HasMaxLength(255);
+        public class GarageEntityConfiguration : IEntityTypeConfiguration<Garage>
+        {
+            public void Configure(EntityTypeBuilder<Garage> builder)
+            {
+                builder.Property(x => x.Name)
+                    .HasMaxLength(255)
+                    .IsRequired();
+
+                builder.Property(x => x.Location)
+                    .HasMaxLength(255);
+            }
+        }
     }
-}
-}
 }
