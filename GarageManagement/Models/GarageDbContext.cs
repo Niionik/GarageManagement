@@ -1,3 +1,8 @@
+
+﻿using GarageManagement.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using DbContext = Microsoft.EntityFrameworkCore.DbContext;
 ﻿using Microsoft.EntityFrameworkCore;
 
 namespace GarageManagement.Models
@@ -38,5 +43,18 @@ namespace GarageManagement.Models
 
             base.OnModelCreating(modelBuilder);
         }
+        
+         public class GarageEntityConfiguration : IEntityTypeConfiguration<Garage>
+    {
+        public void Configure(EntityTypeBuilder<Garage> builder)
+        {
+            builder.Property(x => x.Name)
+                .HasMaxLength(255)
+                .IsRequired();
+
+            builder.Property(x => x.Location)
+                .HasMaxLength(255);
     }
+}
+}
 }
