@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using GarageManagement.Data;
 using GarageManagement.Models;
+using Microsoft.EntityFrameworkCore;
+using GarageManagement.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("GarageManagementContextConnection") ?? throw new InvalidOperationException("Connection string 'GarageManagementContextConnection' not found.");
 
@@ -11,15 +14,17 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddDbContext<GarageDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("GarageDbContext")));
+
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -37,3 +42,5 @@ app.MapControllerRoute(
 app.MapRazorPages();
 
 app.Run();
+
+
