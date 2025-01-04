@@ -21,7 +21,7 @@ namespace GarageManagement.Models
             modelBuilder.Entity<Owner>().ToTable("Owner");
             modelBuilder.Entity<Maintenance>().ToTable("Maintenance");
             modelBuilder.Entity<Garage>().ToTable("Garage");
-            modelBuilder.Entity<GarageCar>().ToTable("GarageCar");
+            modelBuilder.Entity<GarageCar>().ToTable("GarageCars");
 
             modelBuilder.Entity<GarageCar>()
                 .HasKey(gc => new { gc.GarageId, gc.CarId });

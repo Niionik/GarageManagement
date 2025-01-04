@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using GarageManagement.Models;
-using System.Linq;
 
 namespace GarageManagement.Controllers
 {
@@ -13,20 +13,13 @@ namespace GarageManagement.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var garages = _context.Garages.ToList();
+            var garages = await _context.Garages
+                .Include(g => g.GarageCars)
+                .ThenInclude(gc => gc.Car)
+                .ToListAsync();
             return View(garages);
-        }
-
-        public IActionResult Details(int id)
-        {
-            var garage = _context.Garages.Find(id);
-            if (garage == null)
-            {
-                return NotFound();
-            }
-            return View(garage);
         }
 
         public IActionResult Create()
@@ -36,20 +29,26 @@ namespace GarageManagement.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Garage garage)
+        public async Task<IActionResult> Create([Bind("Name,Location")] Garage garage)
         {
             if (ModelState.IsValid)
             {
-                _context.Garages.Add(garage);
-                _context.SaveChanges();
+                _context.Add(garage);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Garaż został pomyślnie dodany.";
                 return RedirectToAction(nameof(Index));
             }
             return View(garage);
         }
 
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int? id)
         {
-            var garage = _context.Garages.Find(id);
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var garage = await _context.Garages.FindAsync(id);
             if (garage == null)
             {
                 return NotFound();
@@ -59,45 +58,73 @@ namespace GarageManagement.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, Garage garage)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Location")] Garage garage)
         {
             if (id != garage.Id)
             {
-                return BadRequest();
+                return NotFound();
             }
 
             if (ModelState.IsValid)
             {
-                _context.Update(garage);
-                _context.SaveChanges();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    _context.Update(garage);
+                    await _context.SaveChangesAsync();
+                    TempData["Success"] = "Garaż został pomyślnie zaktualizowany.";
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!GarageExists(garage.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
             }
             return View(garage);
         }
 
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int? id)
         {
-            var garage = _context.Garages.Find(id);
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var garage = await _context.Garages
+                .Include(g => g.GarageCars)
+                .ThenInclude(gc => gc.Car)
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (garage == null)
             {
                 return NotFound();
             }
+
             return View(garage);
         }
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var garage = _context.Garages.Find(id);
-            if (garage == null)
+            var garage = await _context.Garages.FindAsync(id);
+            if (garage != null)
             {
-                return NotFound();
+                _context.Garages.Remove(garage);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Garaż został pomyślnie usunięty.";
             }
-
-            _context.Garages.Remove(garage);
-            _context.SaveChanges();
             return RedirectToAction(nameof(Index));
+        }
+
+        private bool GarageExists(int id)
+        {
+            return _context.Garages.Any(e => e.Id == id);
         }
     }
 }
