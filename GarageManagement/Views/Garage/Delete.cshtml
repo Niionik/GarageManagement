@@ -1,0 +1,37 @@
+@model GarageManagement.Models.Garage
+
+@{
+    ViewData["Title"] = "Usuń garaż";
+}
+
+<h1>Usuń garaż</h1>
+
+<h3>Czy na pewno chcesz usunąć ten garaż?</h3>
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">Nazwa</dt>
+        <dd class="col-sm-10">@Model.Name</dd>
+
+        <dt class="col-sm-2">Lokalizacja</dt>
+        <dd class="col-sm-10">@Model.Location</dd>
+    </dl>
+
+    @if (Model.GarageCars != null && Model.GarageCars.Any())
+    {
+        <div class="alert alert-warning">
+            <strong>Uwaga!</strong> Ten garaż zawiera przypisane samochody:
+            <ul>
+                @foreach (var garageCar in Model.GarageCars)
+                {
+                    <li>@garageCar.Car.Brand @garageCar.Car.Model (@garageCar.Car.Year)</li>
+                }
+            </ul>
+        </div>
+    }
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Usuń" class="btn btn-danger" />
+        <a asp-action="Index" class="btn btn-secondary">Powrót do listy</a>
+    </form>
+</div> 

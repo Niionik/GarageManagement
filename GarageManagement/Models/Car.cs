@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace GarageManagement.Models
 {
@@ -31,6 +31,9 @@ namespace GarageManagement.Models
         public string? TireBrand { get; set; }
         public DateTime? LastOilChange { get; set; }
         public DateTime? LastTimingBeltChange { get; set; }
+
+        public int? OwnerId { get; set; }
+        public virtual Owner? Owner { get; set; }
 
         public virtual ICollection<Maintenance>? Maintenances { get; set; }
         public virtual ICollection<GarageCar>? GarageCars { get; set; }
