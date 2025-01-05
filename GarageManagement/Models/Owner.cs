@@ -8,5 +8,6 @@ namespace GarageManagement.Models
         public string? LastName { get; set; }
 
         public ICollection<Garage>? Garages { get; set; }
+        public virtual ICollection<Car> Cars { get; set; }
     }
 }

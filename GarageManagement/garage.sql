@@ -13,7 +13,7 @@ GO
 USE Garage;
 GO
 
--- Tabela: Owner (Właściciele) - musi być pierwsza ze względu na relacje
+-- Tabela: Owner (Właściciele)
 CREATE TABLE Owner (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     FirstName NVARCHAR(50) NOT NULL,
@@ -21,7 +21,7 @@ CREATE TABLE Owner (
     Email NVARCHAR(100) NOT NULL UNIQUE
 );
 
--- Tabela: Car (Auta) - z dodanym OwnerId
+-- Tabela: Car (Auta)
 CREATE TABLE Car (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     Brand NVARCHAR(50) NOT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE Car (
     TireBrand NVARCHAR(50),
     LastOilChange DATE,
     LastTimingBeltChange DATE,
-    OwnerId INT,
+    OwnerId NVARCHAR(450),
     FOREIGN KEY (OwnerId) REFERENCES Owner(Id)
 );
 
@@ -64,6 +64,64 @@ CREATE TABLE GarageCars (
     FOREIGN KEY (CarId) REFERENCES Car(Id) ON DELETE CASCADE
 );
 
+
+
+-- Tabela: AspNetUsers
+CREATE TABLE AspNetUsers (
+    Id NVARCHAR(450) NOT NULL PRIMARY KEY,
+    UserName NVARCHAR(256) NULL,
+    NormalizedUserName NVARCHAR(256) NULL,
+    Email NVARCHAR(256) NULL,
+    NormalizedEmail NVARCHAR(256) NULL,
+    EmailConfirmed BIT NOT NULL DEFAULT 0,
+    PasswordHash NVARCHAR(MAX) NULL,
+    SecurityStamp NVARCHAR(MAX) NULL,
+    ConcurrencyStamp NVARCHAR(MAX) NULL,
+    PhoneNumber NVARCHAR(MAX) NULL,
+    PhoneNumberConfirmed BIT NOT NULL DEFAULT 0,
+    TwoFactorEnabled BIT NOT NULL DEFAULT 0,
+    LockoutEnd DATETIMEOFFSET NULL,
+    LockoutEnabled BIT NOT NULL DEFAULT 0,
+    AccessFailedCount INT NOT NULL DEFAULT 0,
+    FirstName NVARCHAR(MAX) NULL,
+    LastName NVARCHAR(MAX) NULL
+);
+
+CREATE UNIQUE INDEX IX_AspNetUsers_NormalizedUserName ON AspNetUsers (NormalizedUserName)
+WHERE NormalizedUserName IS NOT NULL;
+
+CREATE INDEX IX_AspNetUsers_NormalizedEmail ON AspNetUsers (NormalizedEmail);
+
+-- Tabela: AspNetRoles
+CREATE TABLE AspNetRoles (
+    Id NVARCHAR(450) NOT NULL PRIMARY KEY,
+    Name NVARCHAR(256) NULL,
+    NormalizedName NVARCHAR(256) NULL,
+    ConcurrencyStamp NVARCHAR(MAX) NULL
+);
+
+CREATE UNIQUE INDEX IX_AspNetRoles_NormalizedName ON AspNetRoles (NormalizedName)
+WHERE NormalizedName IS NOT NULL;
+
+-- Tabela: AspNetUserRoles
+CREATE TABLE AspNetUserRoles (
+    UserId NVARCHAR(450) NOT NULL,
+    RoleId NVARCHAR(450) NOT NULL,
+    CONSTRAINT PK_AspNetUserRoles PRIMARY KEY (UserId, RoleId),
+    CONSTRAINT FK_AspNetUserRoles_AspNetUsers FOREIGN KEY (UserId) REFERENCES AspNetUsers(Id) ON DELETE CASCADE,
+    CONSTRAINT FK_AspNetUserRoles_AspNetRoles FOREIGN KEY (RoleId) REFERENCES AspNetRoles(Id) ON DELETE CASCADE
+);
+
+-- Tabela: AspNetUserClaims
+CREATE TABLE AspNetUserClaims (
+    Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    UserId NVARCHAR(450) NOT NULL,
+    ClaimType NVARCHAR(MAX) NULL,
+    ClaimValue NVARCHAR(MAX) NULL,
+    CONSTRAINT FK_AspNetUserClaims_AspNetUsers_UserId FOREIGN KEY (UserId) REFERENCES AspNetUsers (Id) ON DELETE CASCADE
+);
+
+
 -- Wstawianie danych
 -- 1. Najpierw właściciel
 INSERT INTO Owner (FirstName, LastName, Email)
@@ -79,7 +137,6 @@ VALUES
 ('Mazda', 'RX8', 2004, 45000, 'Active', 'Sport Alloy R19', '295/45 R18', 'Michelin', '2023-12-15', '2023-06-20', 1),
 ('Hyundai', 'Tiburon', 2006, 78000, 'Active', 'Standard R17', '225/50 R17', 'Continental', '2023-11-10', '2023-04-15', 1),
 ('Toyota', 'MR3', 1991, 5000, 'Active', 'AMG R18', '235/45 R18', 'Pirelli', '2024-01-05', NULL, 1);
-
 -- 4. Przypisanie aut do garażu
 INSERT INTO GarageCars (GarageId, CarId)
 VALUES 

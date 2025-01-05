@@ -32,7 +32,7 @@ namespace GarageManagement.Models
         public DateTime? LastOilChange { get; set; }
         public DateTime? LastTimingBeltChange { get; set; }
 
-        public int? OwnerId { get; set; }
+        public string? OwnerId { get; set; }
         public virtual Owner? Owner { get; set; }
 
         public virtual ICollection<Maintenance>? Maintenances { get; set; }

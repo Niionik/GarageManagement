@@ -1,16 +1,16 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using GarageManagement.Models;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("GarageDbContext")
     ?? throw new InvalidOperationException("Connection string 'GarageDbContext' not found.");
-
 builder.Services.AddDbContext<GarageDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("GarageDbContext")));
 
+    
 builder.Services.AddIdentity<Owner, IdentityRole>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false;
@@ -67,6 +67,7 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

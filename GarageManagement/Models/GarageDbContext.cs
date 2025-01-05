@@ -19,6 +19,11 @@ namespace GarageManagement.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Car>()
+                .HasOne(c => c.Owner)
+                .WithMany(o => o.Cars)
+                .HasForeignKey(c => c.OwnerId);
+
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Owner>().ToTable("AspNetUsers");
