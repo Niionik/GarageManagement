@@ -1,27 +1,64 @@
 USE master;
 GO
 
-IF EXISTS(SELECT * FROM sys.databases WHERE name = 'Garage')
+IF EXISTS(SELECT * FROM sys.databases WHERE name = 'GarageManagement')
 BEGIN
-    ALTER DATABASE Garage SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-    DROP DATABASE Garage;
+    ALTER DATABASE GarageManagement SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE GarageManagement;
 END
 
-CREATE DATABASE Garage;
+CREATE DATABASE GarageManagement;
 GO
 
-USE Garage;
+USE GarageManagement;
 GO
 
--- Tabela: Owner (Właściciele) - musi być pierwsza ze względu na relacje
-CREATE TABLE Owner (
-    Id INT IDENTITY(1,1) PRIMARY KEY,
-    FirstName NVARCHAR(50) NOT NULL,
-    LastName NVARCHAR(50) NOT NULL,
-    Email NVARCHAR(100) NOT NULL UNIQUE
+-- Tabela: AspNetUsers (użytkownicy)
+CREATE TABLE AspNetUsers (
+    Id NVARCHAR(450) NOT NULL PRIMARY KEY,
+    UserName NVARCHAR(256) NULL,
+    NormalizedUserName NVARCHAR(256) NULL,
+    Email NVARCHAR(256) NULL,
+    NormalizedEmail NVARCHAR(256) NULL,
+    EmailConfirmed BIT NOT NULL DEFAULT 0,
+    PasswordHash NVARCHAR(MAX) NULL,
+    SecurityStamp NVARCHAR(MAX) NULL,
+    ConcurrencyStamp NVARCHAR(MAX) NULL,
+    PhoneNumber NVARCHAR(MAX) NULL,
+    PhoneNumberConfirmed BIT NOT NULL DEFAULT 0,
+    TwoFactorEnabled BIT NOT NULL DEFAULT 0,
+    LockoutEnd DATETIMEOFFSET NULL,
+    LockoutEnabled BIT NOT NULL DEFAULT 0,
+    AccessFailedCount INT NOT NULL DEFAULT 0,
+    FirstName NVARCHAR(MAX) NULL,
+    LastName NVARCHAR(MAX) NULL
 );
 
--- Tabela: Car (Auta) - z dodanym OwnerId
+CREATE UNIQUE INDEX IX_AspNetUsers_NormalizedUserName ON AspNetUsers (NormalizedUserName)
+WHERE NormalizedUserName IS NOT NULL;
+
+CREATE INDEX IX_AspNetUsers_NormalizedEmail ON AspNetUsers (NormalizedEmail);
+
+-- Tabela: Owner (właściciele)
+CREATE TABLE Owner (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    FirstName NVARCHAR(100),
+    LastName NVARCHAR(100),
+    Email NVARCHAR(256),
+    UserId NVARCHAR(450),
+    FOREIGN KEY (UserId) REFERENCES AspNetUsers(Id)
+);
+
+-- Tabela: Garage (garaże)
+CREATE TABLE Garage (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(100) NOT NULL,
+    Location NVARCHAR(200) NOT NULL,
+    OwnerId INT,
+    FOREIGN KEY (OwnerId) REFERENCES Owner(Id)
+);
+
+-- Tabela: Car (samochody)
 CREATE TABLE Car (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     Brand NVARCHAR(50) NOT NULL,
@@ -38,25 +75,8 @@ CREATE TABLE Car (
     FOREIGN KEY (OwnerId) REFERENCES Owner(Id)
 );
 
--- Tabela: Maintenance (Naprawy)
-CREATE TABLE Maintenance (
-    Id INT IDENTITY(1,1) PRIMARY KEY,
-    CarId INT NOT NULL,
-    Date DATETIME NOT NULL,
-    Description NVARCHAR(200) NOT NULL,
-    Cost DECIMAL(10,2) NOT NULL,
-    FOREIGN KEY (CarId) REFERENCES Car(Id) ON DELETE CASCADE
-);
-
--- Tabela: Garage (Garaże)
-CREATE TABLE Garage (
-    Id INT IDENTITY(1,1) PRIMARY KEY,
-    Name NVARCHAR(100) NOT NULL,
-    Location NVARCHAR(200) NOT NULL
-);
-
--- Tabela relacyjna: GarageCars (Auta przypisane do garażu)
-CREATE TABLE GarageCars (
+-- Tabela relacyjna: GarageCar (przypisanie samochodów do garaży)
+CREATE TABLE GarageCar (
     GarageId INT NOT NULL,
     CarId INT NOT NULL,
     PRIMARY KEY (GarageId, CarId),
@@ -64,14 +84,27 @@ CREATE TABLE GarageCars (
     FOREIGN KEY (CarId) REFERENCES Car(Id) ON DELETE CASCADE
 );
 
+-- Tabela: Maintenance (konserwacje)
+CREATE TABLE Maintenance (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    CarId INT NOT NULL,
+    Date DATE NOT NULL,
+    Description NVARCHAR(255),
+    Cost DECIMAL(10, 2),
+    FOREIGN KEY (CarId) REFERENCES Car(Id)
+);
+
 -- Wstawianie danych
 -- 1. Najpierw właściciel
-INSERT INTO Owner (FirstName, LastName, Email)
-VALUES ('Patka', 'W', 'email.email@email.pl');
+INSERT INTO AspNetUsers (Id, UserName, NormalizedUserName, Email, NormalizedEmail, EmailConfirmed, PasswordHash, SecurityStamp, ConcurrencyStamp, PhoneNumber, PhoneNumberConfirmed, TwoFactorEnabled, LockoutEnd, LockoutEnabled, AccessFailedCount, FirstName, LastName)
+VALUES ('1', 'patka', 'PATKA', 'email.email@email.pl', 'EMAIL.EMAIL@EMAIL.PL', 1, 'hashed-password', 'security-stamp', 'concurrency-stamp', '123456789', 1, 0, NULL, 0, 0, 'Patka', 'W');
+
+INSERT INTO Owner (FirstName, LastName, Email, UserId)
+VALUES ('Patka', 'W', 'email.email@email.pl', '1');
 
 -- 2. Garaż
-INSERT INTO Garage (Name, Location)
-VALUES ('Garaż Domowy', 'Staszow');
+INSERT INTO Garage (Name, Location, OwnerId)
+VALUES ('Garaż Domowy', 'Staszow', 1);
 
 -- 3. Samochody (z OwnerId)
 INSERT INTO Car (Brand, Model, Year, Mileage, Status, WheelModel, TireSize, TireBrand, LastOilChange, LastTimingBeltChange, OwnerId)
@@ -81,7 +114,7 @@ VALUES
 ('Toyota', 'MR3', 1991, 5000, 'Active', 'AMG R18', '235/45 R18', 'Pirelli', '2024-01-05', NULL, 1);
 
 -- 4. Przypisanie aut do garażu
-INSERT INTO GarageCars (GarageId, CarId)
+INSERT INTO GarageCar (GarageId, CarId)
 VALUES 
 (1, 1),
 (1, 2),
