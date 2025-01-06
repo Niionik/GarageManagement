@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GarageManagement.Models;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GarageManagement.Controllers
 {
+    [Authorize]
     public class GarageController : Controller
     {
         private readonly GarageDbContext _context;
@@ -15,10 +18,13 @@ namespace GarageManagement.Controllers
 
         public async Task<IActionResult> Index()
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var garages = await _context.Garages
+                .Where(g => g.Owner.UserId == userId)
                 .Include(g => g.GarageCars)
                 .ThenInclude(gc => gc.Car)
                 .ToListAsync();
+
             return View(garages);
         }
 

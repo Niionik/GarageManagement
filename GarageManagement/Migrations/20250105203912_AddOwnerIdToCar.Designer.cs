@@ -4,6 +4,7 @@ using GarageManagement.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GarageManagement.Migrations
 {
     [DbContext(typeof(GarageDbContext))]
-    partial class GarageDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250105203912_AddOwnerIdToCar")]
+    partial class AddOwnerIdToCar
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -95,7 +98,6 @@ namespace GarageManagement.Migrations
                         .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("OwnerId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
@@ -363,13 +365,9 @@ namespace GarageManagement.Migrations
 
             modelBuilder.Entity("GarageManagement.Models.Garage", b =>
                 {
-                    b.HasOne("GarageManagement.Models.Owner", "Owner")
+                    b.HasOne("GarageManagement.Models.Owner", null)
                         .WithMany("Garages")
-                        .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Owner");
+                        .HasForeignKey("OwnerId");
                 });
 
             modelBuilder.Entity("GarageManagement.Models.GarageCar", b =>

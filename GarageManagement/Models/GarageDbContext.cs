@@ -1,32 +1,36 @@
 using GarageManagement.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace GarageManagement.Models
 {
-    public class GarageDbContext : IdentityDbContext<Owner>
+    public class GarageDbContext : IdentityDbContext<IdentityUser>
     {
         public GarageDbContext(DbContextOptions<GarageDbContext> options)
             : base(options)
         {
         }
 
+        public DbSet<Owner> Owners { get; set; }
+        public DbSet<Garage> Garages { get; set; }
         public DbSet<Car> Cars { get; set; }
         public DbSet<Maintenance> Maintenances { get; set; }
-        public DbSet<Garage> Garages { get; set; }
-        public DbSet<GarageCar> GarageCars { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Car>()
-                .HasOne(c => c.Owner)
-                .WithMany(o => o.Cars)
-                .HasForeignKey(c => c.OwnerId);
-
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Owner>().ToTable("AspNetUsers");
+            modelBuilder.Entity<Maintenance>()
+                .Property(m => m.Cost)
+                .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<Owner>()
+                .HasOne<IdentityUser>()
+                .WithMany()
+                .HasForeignKey(o => o.UserId)
+                .IsRequired();
 
             modelBuilder.Entity<Car>().ToTable("Car");
             modelBuilder.Entity<Maintenance>().ToTable("Maintenance");
