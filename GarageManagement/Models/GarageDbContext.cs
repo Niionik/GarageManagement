@@ -29,7 +29,7 @@ namespace GarageManagement.Models
             modelBuilder.Entity<Owner>()
                 .HasOne<IdentityUser>()
                 .WithMany()
-                .HasForeignKey(o => o.UserId)
+                .HasForeignKey(o => o.Id)
                 .IsRequired();
 
             modelBuilder.Entity<Car>().ToTable("Car");

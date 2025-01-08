@@ -20,7 +20,7 @@ namespace GarageManagement.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var garages = await _context.Garages
-                .Where(g => g.Owner.UserId == userId)
+                .Where(g => g.Owner.Id == userId)
                 .Include(g => g.GarageCars)
                 .ThenInclude(gc => gc.Car)
                 .ToListAsync();
