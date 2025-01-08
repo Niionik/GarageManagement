@@ -1,0 +1,85 @@
+# Dokumentacja Projektu GarageManagement
+
+## 1. Wprowadzenie
+
+Projekt GarageManagement to aplikacja do zarządzania garażami i samochodami, umożliwiająca użytkownikom dodawanie, edytowanie i usuwanie danych o pojazdach oraz zarządzanie kontami użytkowników.
+
+## 2. Wymagania systemowe
+
+- **System operacyjny**: Windows, macOS, Linux
+- **.NET SDK**: 6.0 lub nowszy
+- **Baza danych**: SQL Server
+- **Przeglądarka**: Chrome, Firefox, Edge
+
+## 3. Instalacja
+
+1. **Klonowanie repozytorium**:
+   ```bash
+   git clone https://github.com/your-repo/garage-management.git
+   cd garage-management
+   ```
+
+2. **Konfiguracja bazy danych**:
+   - Upewnij się, że SQL Server jest uruchomiony.
+   - Zaktualizuj `appsettings.json` z odpowiednim connection stringiem.
+
+3. **Migracje bazy danych**:
+   ```bash
+   dotnet ef database update
+   ```
+
+4. **Uruchomienie aplikacji**:
+   ```bash
+   dotnet run
+   ```
+
+## 4. Użytkownicy testowi
+
+- **Administrator**:
+  - Email: admin@example.com
+  - Hasło: Admin123!
+- **Zwykły użytkownik**:
+  - Email: user@example.com
+  - Hasło: User123!
+
+## 5. Opis funkcjonalności
+
+### Formularze
+
+- **Rejestracja**: Umożliwia tworzenie nowych kont użytkowników.
+- **Logowanie**: Umożliwia użytkownikom dostęp do aplikacji.
+- **Dodawanie samochodu**: Formularz do dodawania nowych pojazdów z walidacją danych.
+
+### Encje
+
+- **User**: Zarządza danymi użytkowników.
+- **Car**: Przechowuje informacje o pojazdach.
+- **Garage**: Przechowuje informacje o garażach.
+- **Maintenance**: Rejestruje historię napraw pojazdów.
+
+### Autoryzacja
+
+- **Zwykli użytkownicy**: Dostęp do podstawowych funkcji.
+- **Administratorzy**: Dostęp do zaawansowanych funkcji zarządzania.
+
+### WebAPI
+
+- **CRUD dla encji Car**:
+  - **Create**: Dodawanie nowego pojazdu.
+  - **Read**: Pobieranie informacji o pojazdach.
+  - **Update**: Aktualizacja danych pojazdu.
+  - **Delete**: Usuwanie pojazdu.
+
+## 6. Uruchamianie aplikacji
+
+Aplikację można uruchomić, wykonując polecenie `dotnet run` w katalogu głównym projektu. Po uruchomieniu aplikacja będzie dostępna pod adresem `http://localhost:7123`.
+
+## 7. Uwagi końcowe
+
+- Upewnij się, że wszystkie zależności są zainstalowane przed uruchomieniem aplikacji.
+- Regularnie aktualizuj dokumentację w miarę wprowadzania zmian w projekcie.
+
+## 8. Autorzy
+
+- Patrycja Opałacz 
+- Konrad Kopacz
