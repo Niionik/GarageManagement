@@ -2,7 +2,7 @@
 
 namespace GarageManagement.Models
 {
-    public class Owner
+    public class Owner:IdentityUser
     {
         public int Id { get; set; }
         public string FirstName { get; set; }

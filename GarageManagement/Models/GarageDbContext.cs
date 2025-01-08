@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace GarageManagement.Models
 {
-    public class GarageDbContext : IdentityDbContext<IdentityUser>
+    public class GarageDbContext : IdentityDbContext<Owner>
     {
         public GarageDbContext(DbContextOptions<GarageDbContext> options)
             : base(options)
