@@ -1,17 +1,29 @@
 USE master;
 GO
 
-IF EXISTS(SELECT * FROM sys.databases WHERE name = 'GarageManagement')
+IF EXISTS(SELECT * FROM sys.databases WHERE name = 'Garage')
 BEGIN
-    ALTER DATABASE GarageManagement SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-    DROP DATABASE GarageManagement;
+    ALTER DATABASE Garage SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE Garage;
 END
 
-CREATE DATABASE GarageManagement;
+CREATE DATABASE Garage;
 GO
 
-USE GarageManagement;
+USE Garage;
 GO
+
+-- Tabela: AspNetRoles (role)
+CREATE TABLE AspNetRoles (
+    Id NVARCHAR(450) NOT NULL PRIMARY KEY, -- Identyfikator roli
+    Name NVARCHAR(256) NULL,              -- Nazwa roli
+    NormalizedName NVARCHAR(256) NULL,    -- Znormalizowana nazwa roli
+    ConcurrencyStamp NVARCHAR(MAX) NULL  -- Znacznik współbieżności
+);
+
+-- Dodanie unikalnego indeksu na kolumnie NormalizedName (jeśli istnieje)
+CREATE UNIQUE INDEX IX_AspNetRoles_NormalizedName ON AspNetRoles (NormalizedName)
+WHERE NormalizedName IS NOT NULL;
 
 -- Tabela: AspNetUsers (użytkownicy)
 CREATE TABLE AspNetUsers (
@@ -76,7 +88,7 @@ CREATE TABLE Car (
 );
 
 -- Tabela relacyjna: GarageCar (przypisanie samochodów do garaży)
-CREATE TABLE GarageCar (
+CREATE TABLE GarageCars (
     GarageId INT NOT NULL,
     CarId INT NOT NULL,
     PRIMARY KEY (GarageId, CarId),
@@ -92,6 +104,24 @@ CREATE TABLE Maintenance (
     Description NVARCHAR(255),
     Cost DECIMAL(10, 2),
     FOREIGN KEY (CarId) REFERENCES Car(Id)
+);
+
+-- Tabela: AspNetUserRoles (role użytkowników)
+CREATE TABLE AspNetUserRoles (
+    UserId NVARCHAR(450) NOT NULL, -- Id użytkownika
+    RoleId NVARCHAR(450) NOT NULL, -- Id roli
+    CONSTRAINT PK_AspNetUserRoles PRIMARY KEY (UserId, RoleId), -- Klucz główny złożony
+    CONSTRAINT FK_AspNetUserRoles_AspNetUsers FOREIGN KEY (UserId) REFERENCES AspNetUsers(Id) ON DELETE CASCADE,
+    CONSTRAINT FK_AspNetUserRoles_AspNetRoles FOREIGN KEY (RoleId) REFERENCES AspNetRoles(Id) ON DELETE CASCADE
+);
+
+-- Tabela: AspNetUserClaims (roszczenia użytkowników)
+CREATE TABLE AspNetUserClaims (
+    Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    UserId NVARCHAR(450) NOT NULL,
+    ClaimType NVARCHAR(MAX) NULL,
+    ClaimValue NVARCHAR(MAX) NULL,
+    CONSTRAINT FK_AspNetUserClaims_AspNetUsers_UserId FOREIGN KEY (UserId) REFERENCES AspNetUsers (Id) ON DELETE CASCADE
 );
 
 -- Wstawianie danych
@@ -114,7 +144,7 @@ VALUES
 ('Toyota', 'MR3', 1991, 5000, 'Active', 'AMG R18', '235/45 R18', 'Pirelli', '2024-01-05', NULL, 1);
 
 -- 4. Przypisanie aut do garażu
-INSERT INTO GarageCar (GarageId, CarId)
+INSERT INTO GarageCars (GarageId, CarId)
 VALUES 
 (1, 1),
 (1, 2),
