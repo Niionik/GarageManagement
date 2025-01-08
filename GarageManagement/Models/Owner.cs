@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using System.Collections.Generic;
 
 namespace GarageManagement.Models
 {
-    public class Owner:IdentityUser
+    public class Owner : IdentityUser
     {
         public int Id { get; set; }
         public string FirstName { get; set; }

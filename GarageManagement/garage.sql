@@ -1,16 +1,16 @@
 USE master;
 GO
 
-IF EXISTS(SELECT * FROM sys.databases WHERE name = 'GarageManagement')
+IF EXISTS(SELECT * FROM sys.databases WHERE name = 'Garage')
 BEGIN
-    ALTER DATABASE GarageManagement SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-    DROP DATABASE GarageManagement;
+    ALTER DATABASE Garage SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE Garage;
 END
 
-CREATE DATABASE GarageManagement;
+CREATE DATABASE Garage;
 GO
 
-USE GarageManagement;
+USE Garage;
 GO
 
 -- Tabela: AspNetUsers (użytkownicy)
