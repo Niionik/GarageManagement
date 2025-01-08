@@ -84,7 +84,9 @@ CREATE TABLE Car (
     LastOilChange DATE,
     LastTimingBeltChange DATE,
     OwnerId INT,
-    FOREIGN KEY (OwnerId) REFERENCES Owner(Id)
+    GarageId INT, -- Nowa kolumna
+    FOREIGN KEY (OwnerId) REFERENCES Owner(Id),
+    FOREIGN KEY (GarageId) REFERENCES Garage(Id) -- Klucz obcy do tabeli Garage
 );
 
 -- Tabela relacyjna: GarageCar (przypisanie samochodów do garaży)
@@ -127,21 +129,21 @@ CREATE TABLE AspNetUserClaims (
 -- Wstawianie danych
 -- 1. Najpierw właściciel
 INSERT INTO AspNetUsers (Id, UserName, NormalizedUserName, Email, NormalizedEmail, EmailConfirmed, PasswordHash, SecurityStamp, ConcurrencyStamp, PhoneNumber, PhoneNumberConfirmed, TwoFactorEnabled, LockoutEnd, LockoutEnabled, AccessFailedCount, FirstName, LastName)
-VALUES ('1', 'patka', 'PATKA', 'email.email@email.pl', 'EMAIL.EMAIL@EMAIL.PL', 1, 'hashed-password', 'security-stamp', 'concurrency-stamp', '123456789', 1, 0, NULL, 0, 0, 'Patka', 'W');
+VALUES ('1', 'patka', 'PATKA', 'patka@email.pl', 'PATKA@EMAIL.PL', 1, '123', 'security-stamp', 'concurrency-stamp', '123456789', 1, 0, NULL, 0, 0, 'Patka', 'W');
 
 INSERT INTO Owner (FirstName, LastName, Email, UserId)
-VALUES ('Patka', 'W', 'email.email@email.pl', '1');
+VALUES ('Patka', 'W', 'patka@email.pl', '1');
 
 -- 2. Garaż
 INSERT INTO Garage (Name, Location, OwnerId)
 VALUES ('Garaż Domowy', 'Staszow', 1);
 
--- 3. Samochody (z OwnerId)
-INSERT INTO Car (Brand, Model, Year, Mileage, Status, WheelModel, TireSize, TireBrand, LastOilChange, LastTimingBeltChange, OwnerId)
+-- 3. Samochody (z OwnerId i GarageId)
+INSERT INTO Car (Brand, Model, Year, Mileage, Status, WheelModel, TireSize, TireBrand, LastOilChange, LastTimingBeltChange, OwnerId, GarageId)
 VALUES 
-('Mazda', 'RX8', 2004, 45000, 'Active', 'Sport Alloy R19', '295/45 R18', 'Michelin', '2023-12-15', '2023-06-20', 1),
-('Hyundai', 'Tiburon', 2006, 78000, 'Active', 'Standard R17', '225/50 R17', 'Continental', '2023-11-10', '2023-04-15', 1),
-('Toyota', 'MR3', 1991, 5000, 'Active', 'AMG R18', '235/45 R18', 'Pirelli', '2024-01-05', NULL, 1);
+('Mazda', 'RX8', 2004, 45000, 'Active', 'Sport Alloy R19', '295/45 R18', 'Michelin', '2023-12-15', '2023-06-20', 1, 1),
+('Hyundai', 'Tiburon', 2006, 78000, 'Active', 'Standard R17', '225/50 R17', 'Continental', '2023-11-10', '2023-04-15', 1, 1),
+('Toyota', 'MR3', 1991, 5000, 'Active', 'AMG R18', '235/45 R18', 'Pirelli', '2024-01-05', NULL, 1, 1);
 
 -- 4. Przypisanie aut do garażu
 INSERT INTO GarageCars (GarageId, CarId)
@@ -156,3 +158,6 @@ VALUES
 (1, '2023-12-15', 'Wymiana oleju i filtrów', 450.00),
 (2, '2023-11-10', 'Przegląd okresowy', 350.00),
 (3, '2024-01-05', 'Wymiana opon na zimowe', 200.00);
+
+SELECT * FROM AspNetUsers;
+SELECT * FROM Car;

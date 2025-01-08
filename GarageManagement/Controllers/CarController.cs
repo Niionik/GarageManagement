@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GarageManagement.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GarageManagement.Controllers
 {
@@ -15,35 +16,29 @@ namespace GarageManagement.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var cars = await _context.Cars.ToListAsync();
+            var cars = await _context.Cars
+                .Include(c => c.Garage)
+                .ToListAsync();
             return View(cars);
         }
 
         public IActionResult Create()
         {
+            ViewData["GarageId"] = new SelectList(_context.Garages, "Id", "Name");
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Brand,Model,Year,Mileage,Status,WheelModel,TireSize,TireBrand")] Car car)
+        public async Task<IActionResult> Create([Bind("Brand,Model,Year,Mileage,Status,GarageId")] Car car)
         {
-            try
+            if (ModelState.IsValid)
             {
-                if (ModelState.IsValid)
-                {
-                    car.Maintenances = new List<Maintenance>();
-                    car.GarageCars = new List<GarageCar>();
-                    _context.Add(car);
-                    await _context.SaveChangesAsync();
-                    TempData["Success"] = "Samochód został pomyślnie dodany.";
-                    return RedirectToAction(nameof(Index));
-                }
+                _context.Add(car);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
             }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("", "Wystąpił błąd podczas zapisywania danych: " + ex.Message);
-            }
+            ViewData["GarageId"] = new SelectList(_context.Garages, "Id", "Name", car.GarageId);
             return View(car);
         }
 
