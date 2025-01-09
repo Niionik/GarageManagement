@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using GarageManagement.Models;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Identity;
+using GarageManagement.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,12 +12,9 @@ builder.Services.AddDbContext<GarageDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("GarageDbContext")));
 
     
-builder.Services.AddIdentity<Owner, IdentityRole>(options =>
-{
-    options.SignIn.RequireConfirmedAccount = false;
-})
-.AddEntityFrameworkStores<GarageDbContext>()
-.AddDefaultTokenProviders();
+builder.Services.AddIdentity<Owner, IdentityRole>()
+    .AddEntityFrameworkStores<GarageDbContext>()
+    .AddDefaultTokenProviders();
 
 builder.Services.AddSingleton<IEmailSender, FakeEmailSender>();
 
@@ -25,34 +23,7 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<Owner>>();
-
-    if (!await roleManager.RoleExistsAsync("owner"))
-    {
-        await roleManager.CreateAsync(new IdentityRole("owner"));
-    }
-
-    var defaultUser = new Owner
-    {
-        UserName = "owner@example.com",
-        Email = "owner@example.com",
-        FirstName = "Default",
-        LastName = "Owner",
-        EmailConfirmed = true
-    };
-    var user = await userManager.FindByEmailAsync(defaultUser.Email);
-    if (user == null)
-    {
-        var createUserResult = await userManager.CreateAsync(defaultUser, "Password123!");
-        if (createUserResult.Succeeded)
-        {
-            await userManager.AddToRoleAsync(defaultUser, "owner");
-        }
-    }
-}
+await DataInitializer.SeedData(app.Services);
 
 if (!app.Environment.IsDevelopment())
 {
