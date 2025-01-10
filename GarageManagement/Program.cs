@@ -30,28 +30,7 @@ using (var scope = app.Services.CreateScope())
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<Owner>>();
 
-    if (!await roleManager.RoleExistsAsync("owner"))
-    {
-        await roleManager.CreateAsync(new IdentityRole("owner"));
-    }
-
-    var defaultUser = new Owner
-    {
-        UserName = "owner@example.com",
-        Email = "owner@example.com",
-        FirstName = "Default",
-        LastName = "Owner",
-        EmailConfirmed = true
-    };
-    var user = await userManager.FindByEmailAsync(defaultUser.Email);
-    if (user == null)
-    {
-        var createUserResult = await userManager.CreateAsync(defaultUser, "Password123!");
-        if (createUserResult.Succeeded)
-        {
-            await userManager.AddToRoleAsync(defaultUser, "owner");
-        }
-    }
+    await UserInitializer.InitializeAsync(userManager, roleManager);
 }
 
 if (!app.Environment.IsDevelopment())
