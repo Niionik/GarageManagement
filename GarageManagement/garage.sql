@@ -15,13 +15,12 @@ GO
 
 -- Tabela: AspNetRoles (role)
 CREATE TABLE AspNetRoles (
-    Id NVARCHAR(450) NOT NULL PRIMARY KEY, -- Identyfikator roli
-    Name NVARCHAR(256) NULL,              -- Nazwa roli
-    NormalizedName NVARCHAR(256) NULL,    -- Znormalizowana nazwa roli
-    ConcurrencyStamp NVARCHAR(MAX) NULL  -- Znacznik współbieżności
+    Id NVARCHAR(450) NOT NULL PRIMARY KEY,
+    Name NVARCHAR(256) NULL,
+    NormalizedName NVARCHAR(256) NULL,
+    ConcurrencyStamp NVARCHAR(MAX) NULL
 );
 
--- Dodanie unikalnego indeksu na kolumnie NormalizedName (jeśli istnieje)
 CREATE UNIQUE INDEX IX_AspNetRoles_NormalizedName ON AspNetRoles (NormalizedName)
 WHERE NormalizedName IS NOT NULL;
 
@@ -64,8 +63,8 @@ CREATE TABLE Owner (
 -- Tabela: Garage (garaże)
 CREATE TABLE Garage (
     Id INT IDENTITY(1,1) PRIMARY KEY,
-    Name NVARCHAR(100) NOT NULL,
-    Location NVARCHAR(200) NOT NULL,
+    Name VARCHAR(100) NOT NULL,
+    Location VARCHAR(200) NOT NULL,
     OwnerId INT,
     FOREIGN KEY (OwnerId) REFERENCES Owner(Id)
 );
@@ -84,9 +83,9 @@ CREATE TABLE Car (
     LastOilChange DATE,
     LastTimingBeltChange DATE,
     OwnerId INT,
-    GarageId INT, -- Nowa kolumna
+    GarageId INT,
     FOREIGN KEY (OwnerId) REFERENCES Owner(Id),
-    FOREIGN KEY (GarageId) REFERENCES Garage(Id) -- Klucz obcy do tabeli Garage
+    FOREIGN KEY (GarageId) REFERENCES Garage(Id)
 );
 
 -- Tabela relacyjna: GarageCar (przypisanie samochodów do garaży)
@@ -110,9 +109,9 @@ CREATE TABLE Maintenance (
 
 -- Tabela: AspNetUserRoles (role użytkowników)
 CREATE TABLE AspNetUserRoles (
-    UserId NVARCHAR(450) NOT NULL, -- Id użytkownika
-    RoleId NVARCHAR(450) NOT NULL, -- Id roli
-    CONSTRAINT PK_AspNetUserRoles PRIMARY KEY (UserId, RoleId), -- Klucz główny złożony
+    UserId NVARCHAR(450) NOT NULL,
+    RoleId NVARCHAR(450) NOT NULL,
+    CONSTRAINT PK_AspNetUserRoles PRIMARY KEY (UserId, RoleId),
     CONSTRAINT FK_AspNetUserRoles_AspNetUsers FOREIGN KEY (UserId) REFERENCES AspNetUsers(Id) ON DELETE CASCADE,
     CONSTRAINT FK_AspNetUserRoles_AspNetRoles FOREIGN KEY (RoleId) REFERENCES AspNetRoles(Id) ON DELETE CASCADE
 );
@@ -128,10 +127,10 @@ CREATE TABLE AspNetUserClaims (
 
 -- Tabela: AspNetRoleClaims (roszczenia ról)
 CREATE TABLE AspNetRoleClaims (
-    Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY, -- Identyfikator roszczenia
-    RoleId NVARCHAR(450) NOT NULL,             -- Id roli
-    ClaimType NVARCHAR(MAX) NULL,              -- Typ roszczenia
-    ClaimValue NVARCHAR(MAX) NULL,             -- Wartość roszczenia
+    Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    RoleId NVARCHAR(450) NOT NULL,
+    ClaimType NVARCHAR(MAX) NULL,
+    ClaimValue NVARCHAR(MAX) NULL,
     CONSTRAINT FK_AspNetRoleClaims_AspNetRoles FOREIGN KEY (RoleId) REFERENCES AspNetRoles(Id) ON DELETE CASCADE
 );
 

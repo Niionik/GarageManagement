@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using GarageManagement.Models;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 public class UserInitializer
@@ -9,6 +10,11 @@ public class UserInitializer
         if (!await roleManager.RoleExistsAsync("owner"))
         {
             await roleManager.CreateAsync(new IdentityRole("owner"));
+        }
+
+        if (!await roleManager.RoleExistsAsync("admin"))
+        {
+            await roleManager.CreateAsync(new IdentityRole("admin"));
         }
 
         var defaultUser = new Owner
@@ -34,6 +40,29 @@ public class UserInitializer
                 {
                     Console.WriteLine($"Error: {error.Description}");
                 }
+            }
+        }
+
+        var adminUser = new Owner
+        {
+            UserName = "admin@example.com",
+            Email = "admin@example.com",
+            FirstName = "Admin",
+            LastName = "User",
+            EmailConfirmed = true
+        };
+
+        var admin = await userManager.FindByEmailAsync(adminUser.Email);
+        if (admin == null)
+        {
+            var createAdminResult = await userManager.CreateAsync(adminUser, "AdminPassword123!");
+            if (createAdminResult.Succeeded)
+            {
+                await userManager.AddToRoleAsync(adminUser, "admin");
+
+                await userManager.AddClaimAsync(adminUser, new Claim("ManageUsers", "Allowed"));
+                await userManager.AddClaimAsync(adminUser, new Claim("ManageRoles", "Allowed"));
+                await userManager.AddClaimAsync(adminUser, new Claim("ViewReports", "Allowed"));
             }
         }
     }
