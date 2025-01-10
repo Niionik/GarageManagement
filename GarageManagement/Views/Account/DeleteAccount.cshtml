@@ -1,12 +1,27 @@
+@page
+@model DeleteAccountViewModel
 @{
-    ViewData["Title"] = "Delete Account";
+    ViewData["Title"] = "Usuñ Konto";
 }
 
-<h2>Delete Account</h2>
+<h2>@ViewData["Title"]</h2>
 
-<p>Are you sure you want to delete your account? This action cannot be undone.</p>
+<h4>Czy na pewno chcesz usun¹æ swoje konto?</h4>
+<p>
+    Po usuniêciu konta wszystkie dane powi¹zane z Twoim kontem mog¹ zostaæ trwale usuniête.
+</p>
 
-<form asp-action="DeleteAccountConfirmed" method="post">
-    <button type="submit" class="btn btn-danger">Delete Account</button>
-    <a asp-action="UserProfile" class="btn btn-secondary">Cancel</a>
-</form> 
+<form asp-action="DeleteAccount" method="post">
+    <div class="form-group">
+        <label asp-for="Password">PotwierdŸ has³o:</label>
+        <input asp-for="Password" type="password" class="form-control" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-danger">Usuñ Konto</button>
+    <a class="btn btn-secondary" asp-action="Index">Anuluj</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

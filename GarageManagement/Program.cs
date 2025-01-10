@@ -10,7 +10,7 @@ var connectionString = builder.Configuration.GetConnectionString("GarageDbContex
 builder.Services.AddDbContext<GarageDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("GarageDbContext")));
 
-    
+
 builder.Services.AddIdentity<Owner, IdentityRole>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false;
@@ -35,6 +35,11 @@ using (var scope = app.Services.CreateScope())
         await roleManager.CreateAsync(new IdentityRole("owner"));
     }
 
+    if (!await roleManager.RoleExistsAsync("Administrator"))
+    {
+        await roleManager.CreateAsync(new IdentityRole("Administrator"));
+    }
+
     var defaultUser = new Owner
     {
         UserName = "owner@example.com",
@@ -50,6 +55,24 @@ using (var scope = app.Services.CreateScope())
         if (createUserResult.Succeeded)
         {
             await userManager.AddToRoleAsync(defaultUser, "owner");
+        }
+    }
+
+    var adminUser = new Owner
+    {
+        UserName = "admin@example.com",
+        Email = "admin@example.com",
+        FirstName = "Admin",
+        LastName = "User",
+        EmailConfirmed = true
+    };
+    var admin = await userManager.FindByEmailAsync(adminUser.Email);
+    if (admin == null)
+    {
+        var createAdminResult = await userManager.CreateAsync(adminUser, "Admin123!");
+        if (createAdminResult.Succeeded)
+        {
+            await userManager.AddToRoleAsync(adminUser, "Administrator");
         }
     }
 }

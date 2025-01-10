@@ -28,10 +28,18 @@
             </ul>
         </div>
     }
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Usuń" class="btn btn-danger" />
+
+    @if (User.IsInRole("Administrator") || User.Identity.Name == Model.OwnerId)
+    {
+        <form asp-action="Delete">
+            <input type="hidden" asp-for="Id" />
+            <input type="submit" value="Usuń" class="btn btn-danger" />
+            <a asp-action="Index" class="btn btn-secondary">Powrót do listy</a>
+        </form>
+    }
+    else
+    {
+        <p class="text-danger">Nie masz uprawnień do usuwania tego garażu.</p>
         <a asp-action="Index" class="btn btn-secondary">Powrót do listy</a>
-    </form>
-</div> 
+    }
+</div>

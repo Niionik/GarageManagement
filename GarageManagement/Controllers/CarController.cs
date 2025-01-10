@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GarageManagement.Models;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GarageManagement.Controllers
 {
+    [Authorize(Roles = "User,Administrator")]
     public class CarController : Controller
     {
         private readonly GarageDbContext _context;
@@ -14,98 +17,115 @@ namespace GarageManagement.Controllers
             _context = context;
         }
 
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var cars = await _context.Cars
+                .Where(c => c.OwnerId == userId)
                 .Include(c => c.Garage)
                 .ToListAsync();
             return View(cars);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var car = await _context.Cars
+                .Include(c => c.Garage)
+                .FirstOrDefaultAsync(c => c.Id == id && c.OwnerId == userId);
+
+            if (car == null)
+            {
+                return NotFound();
+            }
+
+            return View(car);
+        }
+
+        [HttpGet]
         public IActionResult Create()
         {
-            ViewData["GarageId"] = new SelectList(_context.Garages, "Id", "Name");
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            ViewData["GarageId"] = new SelectList(_context.Garages.Where(g => g.OwnerId == userId), "Id", "Name");
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Brand,Model,Year,Mileage,Status,GarageId")] Car car)
+        public async Task<IActionResult> Create([Bind("Make,Model,Year,GarageId")] Car car)
         {
             if (ModelState.IsValid)
             {
+                car.OwnerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 _context.Add(car);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["GarageId"] = new SelectList(_context.Garages, "Id", "Name", car.GarageId);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            ViewData["GarageId"] = new SelectList(_context.Garages.Where(g => g.OwnerId == userId), "Id", "Name", car.GarageId);
             return View(car);
         }
 
-        public async Task<IActionResult> Edit(int? id)
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var car = await _context.Cars.FirstOrDefaultAsync(c => c.Id == id && c.OwnerId == userId);
 
-            var car = await _context.Cars.FindAsync(id);
             if (car == null)
             {
                 return NotFound();
             }
+
+            ViewData["GarageId"] = new SelectList(_context.Garages.Where(g => g.OwnerId == userId), "Id", "Name", car.GarageId);
             return View(car);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Brand,Model,Year,Mileage,Status,WheelModel,TireSize,TireBrand")] Car car)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Make,Model,Year,GarageId")] Car car)
         {
             if (id != car.Id)
             {
                 return NotFound();
             }
 
-            try
+            if (ModelState.IsValid)
             {
-                if (ModelState.IsValid)
+                try
                 {
-                    var existingCar = await _context.Cars.FindAsync(id);
-                    if (existingCar == null)
+                    car.OwnerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                    _context.Update(car);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!CarExists(car.Id))
                     {
                         return NotFound();
                     }
-
-                    existingCar.Brand = car.Brand;
-                    existingCar.Model = car.Model;
-                    existingCar.Year = car.Year;
-                    existingCar.Mileage = car.Mileage;
-                    existingCar.Status = car.Status;
-                    existingCar.WheelModel = car.WheelModel;
-                    existingCar.TireSize = car.TireSize;
-                    existingCar.TireBrand = car.TireBrand;
-
-                    await _context.SaveChangesAsync();
-                    TempData["Success"] = "Samochód został pomyślnie zaktualizowany.";
-                    return RedirectToAction(nameof(Index));
+                    else
+                    {
+                        throw;
+                    }
                 }
+                return RedirectToAction(nameof(Index));
             }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("", "Wystąpił błąd podczas aktualizacji danych: " + ex.Message);
-            }
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            ViewData["GarageId"] = new SelectList(_context.Garages.Where(g => g.OwnerId == userId), "Id", "Name", car.GarageId);
             return View(car);
         }
 
-        public async Task<IActionResult> Delete(int? id)
+        [HttpGet]
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var car = await _context.Cars
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .Include(c => c.Garage)
+                .FirstOrDefaultAsync(c => c.Id == id && c.OwnerId == userId);
+
             if (car == null)
             {
                 return NotFound();
@@ -118,33 +138,17 @@ namespace GarageManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var car = await _context.Cars.FindAsync(id);
-            if (car != null)
-            {
-                _context.Cars.Remove(car);
-                await _context.SaveChangesAsync();
-                TempData["Success"] = "Samochód został pomyślnie usunięty.";
-            }
-            return RedirectToAction(nameof(Index));
-        }
-
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var car = await _context.Cars
-                .Include(c => c.Maintenances)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var car = await _context.Cars.FirstOrDefaultAsync(c => c.Id == id && c.OwnerId == userId);
 
             if (car == null)
             {
                 return NotFound();
             }
 
-            return View(car);
+            _context.Cars.Remove(car);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
         private bool CarExists(int id)

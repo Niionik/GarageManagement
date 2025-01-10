@@ -17,9 +17,16 @@
         <input asp-for="Email" class="form-control" />
         <span asp-validation-for="Email" class="text-danger"></span>
     </div>
-    <button type="submit" class="btn btn-primary">Save Changes</button>
+    @if (User.IsInRole("Administrator") || User.IsInRole("U¿ytkownik"))
+    {
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+    }
+    else
+    {
+        <p class="text-danger">You do not have permission to edit this profile.</p>
+    }
 </form>
 
 <div>
     <a asp-action="UserProfile">Back to Profile</a>
-</div> 
+</div>

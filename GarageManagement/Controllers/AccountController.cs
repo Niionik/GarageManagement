@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using GarageManagement.Models;
 
 namespace GarageManagement.Controllers
 {
@@ -123,36 +124,39 @@ namespace GarageManagement.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public IActionResult DeleteAccount()
         {
-            return View();
+            return View(new DeleteAccountViewModel());
         }
 
-        [HttpPost, ActionName("DeleteAccount")]
-        public async Task<IActionResult> DeleteAccountConfirmed()
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> DeleteAccount(DeleteAccountViewModel model)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = await _userManager.FindByIdAsync(userId);
-
-            if (user != null)
+            if (!ModelState.IsValid)
             {
-                var result = await _userManager.DeleteAsync(user);
-                if (result.Succeeded)
-                {
-                    await _signInManager.SignOutAsync();
-                    TempData["Success"] = "Account deleted successfully.";
-                    return RedirectToAction("Index", "Home");
-                }
-                else
-                {
-                    foreach (var error in result.Errors)
-                    {
-                        ModelState.AddModelError(string.Empty, error.Description);
-                    }
-                }
+                return View(model);
             }
 
-            return View();
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound("Nie znaleziono u¿ytkownika.");
+            }
+
+            var result = await _userManager.CheckPasswordAsync(user, model.Password);
+            if (!result)
+            {
+                ModelState.AddModelError(string.Empty, "Podano nieprawid³owe has³o.");
+                return View(model);
+            }
+
+            await _userManager.DeleteAsync(user);
+            await _signInManager.SignOutAsync();
+
+            return RedirectToAction("Index", "Home");
         }
+
     }
 } 

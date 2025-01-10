@@ -1,12 +1,12 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GarageManagement.Models;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
 
 namespace GarageManagement.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "User,Administrator")]
     public class GarageController : Controller
     {
         private readonly GarageDbContext _context;
@@ -16,18 +16,34 @@ namespace GarageManagement.Controllers
             _context = context;
         }
 
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var garages = await _context.Garages
-                .Where(g => g.Owner.Id == userId)
+                .Where(g => g.OwnerId == userId)
                 .Include(g => g.GarageCars)
-                .ThenInclude(gc => gc.Car)
                 .ToListAsync();
-
             return View(garages);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var garage = await _context.Garages
+                .Include(g => g.GarageCars)
+                .FirstOrDefaultAsync(g => g.Id == id && g.OwnerId == userId);
+
+            if (garage == null)
+            {
+                return NotFound();
+            }
+
+            return View(garage);
+        }
+
+        [HttpGet]
         public IActionResult Create()
         {
             return View();
@@ -39,26 +55,27 @@ namespace GarageManagement.Controllers
         {
             if (ModelState.IsValid)
             {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new InvalidOperationException("User is not logged in");
+                garage.OwnerId = userId;
+                garage.OwnerId = userId;
                 _context.Add(garage);
                 await _context.SaveChangesAsync();
-                TempData["Success"] = "Garaż został pomyślnie dodany.";
                 return RedirectToAction(nameof(Index));
             }
             return View(garage);
         }
 
-        public async Task<IActionResult> Edit(int? id)
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var garage = await _context.Garages.FirstOrDefaultAsync(g => g.Id == id && g.OwnerId == userId);
 
-            var garage = await _context.Garages.FindAsync(id);
             if (garage == null)
             {
                 return NotFound();
             }
+
             return View(garage);
         }
 
@@ -75,10 +92,9 @@ namespace GarageManagement.Controllers
             {
                 try
                 {
+                    garage.OwnerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                     _context.Update(garage);
                     await _context.SaveChangesAsync();
-                    TempData["Success"] = "Garaż został pomyślnie zaktualizowany.";
-                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -91,21 +107,19 @@ namespace GarageManagement.Controllers
                         throw;
                     }
                 }
+                return RedirectToAction(nameof(Index));
             }
             return View(garage);
         }
 
-        public async Task<IActionResult> Delete(int? id)
+        [HttpGet]
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var garage = await _context.Garages
                 .Include(g => g.GarageCars)
-                .ThenInclude(gc => gc.Car)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(g => g.Id == id && g.OwnerId == userId);
+
             if (garage == null)
             {
                 return NotFound();
@@ -118,13 +132,16 @@ namespace GarageManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var garage = await _context.Garages.FindAsync(id);
-            if (garage != null)
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var garage = await _context.Garages.FirstOrDefaultAsync(g => g.Id == id && g.OwnerId == userId);
+
+            if (garage == null)
             {
-                _context.Garages.Remove(garage);
-                await _context.SaveChangesAsync();
-                TempData["Success"] = "Garaż został pomyślnie usunięty.";
+                return NotFound();
             }
+
+            _context.Garages.Remove(garage);
+            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
