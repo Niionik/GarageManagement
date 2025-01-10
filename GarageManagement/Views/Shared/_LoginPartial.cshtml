@@ -4,13 +4,13 @@
         <li class="nav-item">
             <a class="nav-link text-dark" href="@Url.Action("UserProfile", "Account")">Hello, @User.Identity.Name!</a>
         </li>
-        @if (User.IsInRole("Administrator"))
+        @if (User.IsInRole("admin"))
         {
             <li class="nav-item">
                 <a class="nav-link" href="@Url.Action("Index", "Admin")">Admin Panel</a>
             </li>
         }
-        @if (User.IsInRole("User"))
+        @if (User.IsInRole("owner"))
         {
             <li class="nav-item">
                 <a class="nav-link" href="@Url.Action("Index", "Garage")">My Garages</a>

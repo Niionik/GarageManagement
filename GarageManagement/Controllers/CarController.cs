@@ -7,7 +7,7 @@ using System.Security.Claims;
 
 namespace GarageManagement.Controllers
 {
-    [Authorize(Roles = "User")]
+    [Authorize(Roles = "owner")]
     public class CarController : Controller
     {
         private readonly GarageDbContext _context;

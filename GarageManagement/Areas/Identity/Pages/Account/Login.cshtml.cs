@@ -11,9 +11,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using GarageManagement.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GarageManagement.Areas.Identity.Pages.Account
 {
+    [AllowAnonymous]
     public class LoginModel : PageModel
     {
         private readonly SignInManager<Owner> _signInManager;

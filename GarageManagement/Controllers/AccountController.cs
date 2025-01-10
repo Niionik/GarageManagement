@@ -19,7 +19,7 @@ namespace GarageManagement.Controllers
             _signInManager = signInManager;
         }
 
-        [Authorize(Roles = "User,Administrator")]
+        [Authorize(Roles = "owner,admin")]
         public async Task<IActionResult> UserProfile()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -37,7 +37,7 @@ namespace GarageManagement.Controllers
             return View();
         }
 
-        [Authorize(Roles = "User,Administrator")]
+        [Authorize(Roles = "owner,admin")]
         [HttpGet]
         public async Task<IActionResult> EditProfile()
         {
@@ -58,7 +58,7 @@ namespace GarageManagement.Controllers
             return View();
         }
 
-        [Authorize(Roles = "User,Administrator")]
+        [Authorize(Roles = "owner,admin")]
         [HttpPost]
         public async Task<IActionResult> EditProfile(EditProfileViewModel model)
         {
@@ -93,14 +93,14 @@ namespace GarageManagement.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "User,Administrator")]
+        [Authorize(Roles = "owner,admin")]
         [HttpGet]
         public IActionResult ChangePassword()
         {
             return View();
         }
 
-        [Authorize(Roles = "User,Administrator")]
+        [Authorize(Roles = "owner,admin")]
         [HttpPost]
         public async Task<IActionResult> ChangePassword(string currentPassword, string newPassword)
         {
@@ -127,14 +127,14 @@ namespace GarageManagement.Controllers
             return View();
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "admin")]
         [HttpGet]
         public IActionResult DeleteAccount()
         {
             return View();
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "admin")]
         [HttpPost, ActionName("DeleteAccount")]
         public async Task<IActionResult> DeleteAccountConfirmed()
         {

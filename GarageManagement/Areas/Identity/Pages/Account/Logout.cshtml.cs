@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 
 namespace GarageManagement.Areas.Identity.Pages.Account
 {
+    [AllowAnonymous]
     public class LogoutModel : PageModel
     {
         private readonly SignInManager<Owner> _signInManager;

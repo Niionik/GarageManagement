@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace GarageManagement.Controllers
 {
-    [Authorize(Roles = "User")]
+    [Authorize(Roles = "owner")]
     public class GarageController : Controller
     {
         private readonly GarageDbContext _context;
