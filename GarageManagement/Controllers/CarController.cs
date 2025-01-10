@@ -2,9 +2,12 @@
 using Microsoft.EntityFrameworkCore;
 using GarageManagement.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace GarageManagement.Controllers
 {
+    [Authorize(Roles = "User")]
     public class CarController : Controller
     {
         private readonly GarageDbContext _context;
@@ -16,7 +19,9 @@ namespace GarageManagement.Controllers
 
         public async Task<IActionResult> Index()
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var cars = await _context.Cars
+                .Where(c => c.OwnerId == userId)
                 .Include(c => c.Garage)
                 .ToListAsync();
             return View(cars);
@@ -24,7 +29,8 @@ namespace GarageManagement.Controllers
 
         public IActionResult Create()
         {
-            ViewData["GarageId"] = new SelectList(_context.Garages, "Id", "Name");
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            ViewData["GarageId"] = new SelectList(_context.Garages.Where(g => g.OwnerId == userId), "Id", "Name");
             return View();
         }
 
@@ -34,11 +40,14 @@ namespace GarageManagement.Controllers
         {
             if (ModelState.IsValid)
             {
+                car.OwnerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 _context.Add(car);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["GarageId"] = new SelectList(_context.Garages, "Id", "Name", car.GarageId);
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            ViewData["GarageId"] = new SelectList(_context.Garages.Where(g => g.OwnerId == userId), "Id", "Name", car.GarageId);
             return View(car);
         }
 
@@ -50,10 +59,12 @@ namespace GarageManagement.Controllers
             }
 
             var car = await _context.Cars.FindAsync(id);
-            if (car == null)
+            if (car == null || car.OwnerId != User.FindFirstValue(ClaimTypes.NameIdentifier))
             {
-                return NotFound();
+                return Forbid();
             }
+
+            ViewData["GarageId"] = new SelectList(_context.Garages.Where(g => g.OwnerId == car.OwnerId), "Id", "Name", car.GarageId);
             return View(car);
         }
 
@@ -66,9 +77,14 @@ namespace GarageManagement.Controllers
                 return NotFound();
             }
 
-            try
+            if (car.OwnerId != User.FindFirstValue(ClaimTypes.NameIdentifier))
             {
-                if (ModelState.IsValid)
+                return Forbid();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
                 {
                     var existingCar = await _context.Cars.FindAsync(id);
                     if (existingCar == null)
@@ -89,11 +105,13 @@ namespace GarageManagement.Controllers
                     TempData["Success"] = "Samochód został pomyślnie zaktualizowany.";
                     return RedirectToAction(nameof(Index));
                 }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "Wystąpił błąd podczas aktualizacji danych: " + ex.Message);
+                }
             }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("", "Wystąpił błąd podczas aktualizacji danych: " + ex.Message);
-            }
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            ViewData["GarageId"] = new SelectList(_context.Garages.Where(g => g.OwnerId == userId), "Id", "Name", car.GarageId);
             return View(car);
         }
 
@@ -105,10 +123,11 @@ namespace GarageManagement.Controllers
             }
 
             var car = await _context.Cars
+                .Include(c => c.Garage)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (car == null)
+            if (car == null || car.OwnerId != User.FindFirstValue(ClaimTypes.NameIdentifier))
             {
-                return NotFound();
+                return Forbid();
             }
 
             return View(car);
@@ -119,7 +138,7 @@ namespace GarageManagement.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var car = await _context.Cars.FindAsync(id);
-            if (car != null)
+            if (car != null && car.OwnerId == User.FindFirstValue(ClaimTypes.NameIdentifier))
             {
                 _context.Cars.Remove(car);
                 await _context.SaveChangesAsync();
@@ -139,9 +158,9 @@ namespace GarageManagement.Controllers
                 .Include(c => c.Maintenances)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
-            if (car == null)
+            if (car == null || car.OwnerId != User.FindFirstValue(ClaimTypes.NameIdentifier))
             {
-                return NotFound();
+                return Forbid();
             }
 
             return View(car);

@@ -6,27 +6,60 @@ public class UserInitializer
 {
     public static async Task InitializeAsync(UserManager<Owner> userManager, RoleManager<IdentityRole> roleManager)
     {
-        if (!await roleManager.RoleExistsAsync("owner"))
+        var roles = new[] { "Administrator", "User" };
+
+        foreach (var role in roles)
         {
-            await roleManager.CreateAsync(new IdentityRole("owner"));
+            if (!await roleManager.RoleExistsAsync(role))
+            {
+                await roleManager.CreateAsync(new IdentityRole(role));
+            }
         }
 
-        var defaultUser = new Owner
+        var adminEmail = "admin@example.com";
+        var admin = await userManager.FindByEmailAsync(adminEmail);
+        if (admin == null)
         {
-            UserName = "owner@example.com",
-            Email = "owner@example.com",
-            FirstName = "Default",
-            LastName = "Owner",
-            EmailConfirmed = true
-        };
+            var newAdmin = new Owner
+            {
+                UserName = adminEmail,
+                Email = adminEmail,
+                FirstName = "Admin",
+                LastName = "User",
+                EmailConfirmed = true
+            };
 
-        var user = await userManager.FindByEmailAsync(defaultUser.Email);
-        if (user == null)
+            var createAdminResult = await userManager.CreateAsync(newAdmin, "Admin123!");
+            if (createAdminResult.Succeeded)
+            {
+                await userManager.AddToRoleAsync(newAdmin, "Administrator");
+            }
+            else
+            {
+                foreach (var error in createAdminResult.Errors)
+                {
+                    Console.WriteLine($"Error: {error.Description}");
+                }
+            }
+        }
+
+        var defaultUserEmail = "user@example.com";
+        var defaultUser = await userManager.FindByEmailAsync(defaultUserEmail);
+        if (defaultUser == null)
         {
-            var createUserResult = await userManager.CreateAsync(defaultUser, "Password123!");
+            var newUser = new Owner
+            {
+                UserName = defaultUserEmail,
+                Email = defaultUserEmail,
+                FirstName = "Default",
+                LastName = "User",
+                EmailConfirmed = true
+            };
+
+            var createUserResult = await userManager.CreateAsync(newUser, "User123!");
             if (createUserResult.Succeeded)
             {
-                await userManager.AddToRoleAsync(defaultUser, "owner");
+                await userManager.AddToRoleAsync(newUser, "User");
             }
             else
             {
@@ -37,4 +70,4 @@ public class UserInitializer
             }
         }
     }
-} 
+}

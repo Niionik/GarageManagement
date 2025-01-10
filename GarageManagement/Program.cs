@@ -10,7 +10,6 @@ var connectionString = builder.Configuration.GetConnectionString("GarageDbContex
 builder.Services.AddDbContext<GarageDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("GarageDbContext")));
 
-    
 builder.Services.AddIdentity<Owner, IdentityRole>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false;

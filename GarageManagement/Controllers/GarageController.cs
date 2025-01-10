@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace GarageManagement.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "User")]
     public class GarageController : Controller
     {
         private readonly GarageDbContext _context;
@@ -20,7 +20,7 @@ namespace GarageManagement.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var garages = await _context.Garages
-                .Where(g => g.Owner.Id == userId)
+                .Where(g => g.OwnerId == userId)
                 .Include(g => g.GarageCars)
                 .ThenInclude(gc => gc.Car)
                 .ToListAsync();
@@ -39,6 +39,7 @@ namespace GarageManagement.Controllers
         {
             if (ModelState.IsValid)
             {
+                garage.OwnerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 _context.Add(garage);
                 await _context.SaveChangesAsync();
                 TempData["Success"] = "Garaż został pomyślnie dodany.";
@@ -55,9 +56,9 @@ namespace GarageManagement.Controllers
             }
 
             var garage = await _context.Garages.FindAsync(id);
-            if (garage == null)
+            if (garage == null || garage.OwnerId != User.FindFirstValue(ClaimTypes.NameIdentifier))
             {
-                return NotFound();
+                return Forbid();
             }
             return View(garage);
         }
@@ -69,6 +70,11 @@ namespace GarageManagement.Controllers
             if (id != garage.Id)
             {
                 return NotFound();
+            }
+
+            if (garage.OwnerId != User.FindFirstValue(ClaimTypes.NameIdentifier))
+            {
+                return Forbid();
             }
 
             if (ModelState.IsValid)
@@ -106,9 +112,9 @@ namespace GarageManagement.Controllers
                 .Include(g => g.GarageCars)
                 .ThenInclude(gc => gc.Car)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (garage == null)
+            if (garage == null || garage.OwnerId != User.FindFirstValue(ClaimTypes.NameIdentifier))
             {
-                return NotFound();
+                return Forbid();
             }
 
             return View(garage);
@@ -119,7 +125,7 @@ namespace GarageManagement.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var garage = await _context.Garages.FindAsync(id);
-            if (garage != null)
+            if (garage != null && garage.OwnerId == User.FindFirstValue(ClaimTypes.NameIdentifier))
             {
                 _context.Garages.Remove(garage);
                 await _context.SaveChangesAsync();

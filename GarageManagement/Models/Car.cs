@@ -25,6 +25,8 @@ namespace GarageManagement.Models
         [Required(ErrorMessage = "Pole Status jest wymagane")]
         [StringLength(20)]
         public string Status { get; set; }
+
+        [Required]
         public int GarageId { get; set; }
         public Garage? Garage { get; set; }
 
@@ -34,6 +36,7 @@ namespace GarageManagement.Models
         public DateTime? LastOilChange { get; set; }
         public DateTime? LastTimingBeltChange { get; set; }
 
+        [Required]
         public string? OwnerId { get; set; }
         public virtual Owner? Owner { get; set; }
 
