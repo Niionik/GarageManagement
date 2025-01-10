@@ -126,6 +126,15 @@ CREATE TABLE AspNetUserClaims (
     CONSTRAINT FK_AspNetUserClaims_AspNetUsers_UserId FOREIGN KEY (UserId) REFERENCES AspNetUsers (Id) ON DELETE CASCADE
 );
 
+-- Tabela: AspNetRoleClaims (roszczenia ról)
+CREATE TABLE AspNetRoleClaims (
+    Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY, -- Identyfikator roszczenia
+    RoleId NVARCHAR(450) NOT NULL,             -- Id roli
+    ClaimType NVARCHAR(MAX) NULL,              -- Typ roszczenia
+    ClaimValue NVARCHAR(MAX) NULL,             -- Wartość roszczenia
+    CONSTRAINT FK_AspNetRoleClaims_AspNetRoles FOREIGN KEY (RoleId) REFERENCES AspNetRoles(Id) ON DELETE CASCADE
+);
+
 -- Wstawianie danych
 -- 1. Najpierw właściciel
 INSERT INTO AspNetUsers (Id, UserName, NormalizedUserName, Email, NormalizedEmail, EmailConfirmed, PasswordHash, SecurityStamp, ConcurrencyStamp, PhoneNumber, PhoneNumberConfirmed, TwoFactorEnabled, LockoutEnd, LockoutEnabled, AccessFailedCount, FirstName, LastName)

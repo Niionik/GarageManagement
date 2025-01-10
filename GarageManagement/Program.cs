@@ -30,51 +30,7 @@ using (var scope = app.Services.CreateScope())
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<Owner>>();
 
-    if (!await roleManager.RoleExistsAsync("owner"))
-    {
-        await roleManager.CreateAsync(new IdentityRole("owner"));
-    }
-
-    if (!await roleManager.RoleExistsAsync("Administrator"))
-    {
-        await roleManager.CreateAsync(new IdentityRole("Administrator"));
-    }
-
-    var defaultUser = new Owner
-    {
-        UserName = "owner@example.com",
-        Email = "owner@example.com",
-        FirstName = "Default",
-        LastName = "Owner",
-        EmailConfirmed = true
-    };
-    var user = await userManager.FindByEmailAsync(defaultUser.Email);
-    if (user == null)
-    {
-        var createUserResult = await userManager.CreateAsync(defaultUser, "Password123!");
-        if (createUserResult.Succeeded)
-        {
-            await userManager.AddToRoleAsync(defaultUser, "owner");
-        }
-    }
-
-    var adminUser = new Owner
-    {
-        UserName = "admin@example.com",
-        Email = "admin@example.com",
-        FirstName = "Admin",
-        LastName = "User",
-        EmailConfirmed = true
-    };
-    var admin = await userManager.FindByEmailAsync(adminUser.Email);
-    if (admin == null)
-    {
-        var createAdminResult = await userManager.CreateAsync(adminUser, "Admin123!");
-        if (createAdminResult.Succeeded)
-        {
-            await userManager.AddToRoleAsync(adminUser, "Administrator");
-        }
-    }
+    await UserInitializer.InitializeAsync(userManager, roleManager);
 }
 
 if (!app.Environment.IsDevelopment())
