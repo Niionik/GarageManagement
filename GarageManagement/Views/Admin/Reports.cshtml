@@ -1,0 +1,105 @@
+@model AdminReportsViewModel
+@{
+    ViewData["Title"] = "Raporty";
+}
+
+<div class="section-header">
+    <h2><i class="fas fa-chart-bar"></i> Raporty</h2>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h4>Statystyki Użytkowników</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Garaże</th>
+                                <th>Samochody</th>
+                                <th>Naprawy</th>
+                                <th>Suma Kosztów</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var stat in Model.UserStatistics)
+                            {
+                                <tr>
+                                    <td>@stat.UserEmail</td>
+                                    <td>@stat.GaragesCount</td>
+                                    <td>@stat.CarsCount</td>
+                                    <td>@stat.MaintenancesCount</td>
+                                    <td>@stat.TotalMaintenanceCost.ToString("C")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h4>Statystyki Napraw (miesięcznie)</h4>
+            </div>
+            <div class="card-body">
+                <canvas id="maintenanceChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('maintenanceChart').getContext('2d');
+        const data = @Json.Serialize(Model.MaintenanceStatistics);
+        
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.map(d => {
+                    const date = new Date(2024, d.month - 1);
+                    return date.toLocaleString('default', { month: 'long' });
+                }),
+                datasets: [{
+                    label: 'Liczba napraw',
+                    data: data.map(d => d.count),
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }, {
+                    label: 'Suma kosztów',
+                    data: data.map(d => d.totalCost),
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1,
+                    yAxisID: 'y1'
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        position: 'left'
+                    },
+                    y1: {
+                        beginAtZero: true,
+                        position: 'right',
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+} 

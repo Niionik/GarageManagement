@@ -1,0 +1,95 @@
+@model Owner
+@{
+    ViewData["Title"] = "Szczegóły Użytkownika";
+}
+
+<div class="section-header">
+    <h2><i class="fas fa-user"></i> Szczegóły Użytkownika</h2>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h4>Informacje Podstawowe</h4>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">Email</dt>
+                    <dd class="col-sm-8">@Model.Email</dd>
+
+                    <dt class="col-sm-4">Imię</dt>
+                    <dd class="col-sm-8">@Model.FirstName</dd>
+
+                    <dt class="col-sm-4">Nazwisko</dt>
+                    <dd class="col-sm-8">@Model.LastName</dd>
+
+                    <dt class="col-sm-4">Telefon</dt>
+                    <dd class="col-sm-8">@Model.PhoneNumber</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4>Garaże</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nazwa</th>
+                                <th>Lokalizacja</th>
+                                <th>Liczba Samochodów</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var garage in Model.Garages)
+                            {
+                                <tr>
+                                    <td>@garage.Name</td>
+                                    <td>@garage.Location</td>
+                                    <td>@(garage.GarageCars?.Count ?? 0)</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h4>Historia Napraw</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Samochód</th>
+                                <th>Opis</th>
+                                <th>Koszt</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var maintenance in Model.Maintenances.OrderByDescending(m => m.Date))
+                            {
+                                <tr>
+                                    <td>@maintenance.Date.ToShortDateString()</td>
+                                    <td>@maintenance.Car.Brand @maintenance.Car.Model</td>
+                                    <td>@maintenance.Description</td>
+                                    <td>@maintenance.Cost.ToString("C")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

@@ -1,0 +1,97 @@
+@model AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Panel Administratora";
+}
+
+<div class="section-header">
+    <h2><i class="fas fa-tachometer-alt"></i> Panel Administratora</h2>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5><i class="fas fa-users"></i> Użytkownicy</h5>
+                <h2>@Model.TotalUsers</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5><i class="fas fa-warehouse"></i> Garaże</h5>
+                <h2>@Model.TotalGarages</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h5><i class="fas fa-car"></i> Samochody</h5>
+                <h2>@Model.TotalCars</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <h5><i class="fas fa-tools"></i> Naprawy</h5>
+                <h2>@Model.TotalMaintenances</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-user-plus"></i> Nowi Użytkownicy</h4>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    @foreach (var user in Model.RecentUsers)
+                    {
+                        <a href="@Url.Action("UserDetails", new { id = user.Id })" class="list-group-item list-group-item-action">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">@user.FirstName @user.LastName</h6>
+                                    <small>@user.Email</small>
+                                </div>
+                                <span class="badge bg-primary rounded-pill">
+                                    <i class="fas fa-chevron-right"></i>
+                                </span>
+                            </div>
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-history"></i> Ostatnie Naprawy</h4>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    @foreach (var maintenance in Model.RecentMaintenances)
+                    {
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">@maintenance.Car.Brand @maintenance.Car.Model</h6>
+                                    <small>@maintenance.Description</small>
+                                </div>
+                                <span class="badge bg-success">@maintenance.Cost.ToString("C")</span>
+                            </div>
+                            <small class="text-muted">
+                                @maintenance.Date.ToShortDateString() - @maintenance.Owner.Email
+                            </small>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

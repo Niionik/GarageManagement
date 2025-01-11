@@ -31,7 +31,7 @@ namespace GarageManagement.Models
             modelBuilder.Entity<Garage>(entity =>
             {
                 entity.Property(e => e.OwnerId)
-                    .HasColumnType("nvarchar(128)");
+                    .HasColumnType("nvarchar(450)");
 
                 entity.HasOne(d => d.Owner)
                     .WithMany(p => p.Garages)
@@ -41,11 +41,15 @@ namespace GarageManagement.Models
             modelBuilder.Entity<Car>(entity =>
             {
                 entity.Property(e => e.OwnerId)
-                    .HasColumnType("nvarchar(128)");
+                    .HasColumnType("nvarchar(450)");
 
                 entity.HasOne(d => d.Owner)
                     .WithMany(p => p.Cars)
                     .HasForeignKey(d => d.OwnerId);
+
+                entity.HasOne(d => d.Garage)
+                    .WithMany()
+                    .HasForeignKey(d => d.GarageId);
             });
 
             modelBuilder.Entity<GarageCar>(entity =>
