@@ -232,5 +232,34 @@ namespace GarageManagement.Controllers
             TempData["Success"] = "Garaż został pomyślnie skopiowany.";
             return RedirectToAction(nameof(Index));
         }
+
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var garage = await _context.Garages
+                .Include(g => g.Owner)
+                .Include(g => g.GarageCars)
+                    .ThenInclude(gc => gc.Car)
+                        .ThenInclude(c => c.Maintenances)
+                .FirstOrDefaultAsync(g => g.Id == id);
+
+            if (garage == null)
+            {
+                return NotFound();
+            }
+
+            // Sprawdź czy użytkownik jest właścicielem garażu lub adminem
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (garage.OwnerId != userId && !User.IsInRole("admin"))
+            {
+                return Forbid();
+            }
+
+            return View(garage);
+        }
     }
 }
