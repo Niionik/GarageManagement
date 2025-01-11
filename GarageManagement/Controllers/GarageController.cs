@@ -20,7 +20,7 @@ namespace GarageManagement.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var garages = await _context.Garages
-                .Where(g => g.Owner.Id == userId)
+                .Where(g => g.OwnerId == userId)
                 .Include(g => g.GarageCars)
                 .ThenInclude(gc => gc.Car)
                 .ToListAsync();
@@ -39,6 +39,7 @@ namespace GarageManagement.Controllers
         {
             if (ModelState.IsValid)
             {
+                garage.OwnerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 _context.Add(garage);
                 await _context.SaveChangesAsync();
                 TempData["Success"] = "Garaż został pomyślnie dodany.";

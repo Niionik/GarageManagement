@@ -13,57 +13,57 @@ namespace GarageManagement.Models
         {
         }
 
-        public DbSet<Owner> Owners { get; set; }
         public DbSet<Garage> Garages { get; set; }
         public DbSet<Car> Cars { get; set; }
+        public DbSet<GarageCar> GarageCars { get; set; }
         public DbSet<Maintenance> Maintenances { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Maintenance>()
-                .Property(m => m.Cost)
-                .HasColumnType("decimal(18,2)");
-
-            modelBuilder.Entity<Owner>()
-                .HasOne<IdentityUser>()
-                .WithMany()
-                .HasForeignKey(o => o.Id)
-                .IsRequired();
-
-            modelBuilder.Entity<Car>().ToTable("Car");
-            modelBuilder.Entity<Maintenance>().ToTable("Maintenance");
+            // Mapowanie nazw tabel
             modelBuilder.Entity<Garage>().ToTable("Garage");
+            modelBuilder.Entity<Car>().ToTable("Car");
             modelBuilder.Entity<GarageCar>().ToTable("GarageCars");
+            modelBuilder.Entity<Maintenance>().ToTable("Maintenance");
 
-            modelBuilder.Entity<GarageCar>()
-                .HasKey(gc => new { gc.GarageId, gc.CarId });
-
-            modelBuilder.Entity<GarageCar>()
-                .HasOne(gc => gc.Garage)
-                .WithMany(g => g.GarageCars)
-                .HasForeignKey(gc => gc.GarageId);
-
-            modelBuilder.Entity<GarageCar>()
-                .HasOne(gc => gc.Car)
-                .WithMany(c => c.GarageCars)
-                .HasForeignKey(gc => gc.CarId);
-
-            modelBuilder.ApplyConfiguration(new GarageEntityConfiguration());
-        }
-
-        public class GarageEntityConfiguration : IEntityTypeConfiguration<Garage>
-        {
-            public void Configure(EntityTypeBuilder<Garage> builder)
+            modelBuilder.Entity<Garage>(entity =>
             {
-                builder.Property(x => x.Name)
-                    .HasMaxLength(255)
-                    .IsRequired();
+                entity.Property(e => e.OwnerId)
+                    .HasColumnType("nvarchar(450)");
 
-                builder.Property(x => x.Location)
-                    .HasMaxLength(255);
-            }
+                entity.HasOne(d => d.Owner)
+                    .WithMany(p => p.Garages)
+                    .HasForeignKey(d => d.OwnerId);
+            });
+
+            modelBuilder.Entity<GarageCar>(entity =>
+            {
+                entity.HasKey(gc => new { gc.GarageId, gc.CarId });
+
+                entity.HasOne(gc => gc.Garage)
+                    .WithMany(g => g.GarageCars)
+                    .HasForeignKey(gc => gc.GarageId);
+
+                entity.HasOne(gc => gc.Car)
+                    .WithMany(c => c.GarageCars)
+                    .HasForeignKey(gc => gc.CarId);
+            });
+
+            modelBuilder.Entity<Maintenance>(entity =>
+            {
+                entity.Property(e => e.Cost)
+                    .HasColumnType("decimal(10,2)");
+
+                entity.HasOne(d => d.Owner)
+                    .WithMany()
+                    .HasForeignKey(d => d.OwnerId);
+
+                entity.HasOne(d => d.Car)
+                    .WithMany(p => p.Maintenances)
+                    .HasForeignKey(d => d.CarId);
+            });
         }
     }
 }
