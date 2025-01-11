@@ -120,13 +120,13 @@ body {
 }
 
 .btn-secondary {
-    background-color: var(--dark-gray);
-    border-color: var(--dark-gray);
+    background-color: #6c757d;
+    border-color: #6c757d;
 }
 
 .btn-secondary:hover {
-    background-color: #7f8c8d;
-    border-color: #7f8c8d;
+    background-color: #5a6268;
+    border-color: #545b62;
 }
 
 /* Alerty */
@@ -307,4 +307,26 @@ body {
     background-color: var(--secondary-color);
     border-radius: 6px;
     padding: 0.5rem 1rem;
+}
+
+/* Animacja dla przycisku kopiowania */
+.btn-secondary i.fas.fa-copy {
+    transition: transform 0.2s ease;
+}
+
+.btn-secondary:hover i.fas.fa-copy {
+    transform: translateY(-1px);
+}
+
+/* Tooltip dla przycisku kopiowania */
+[data-bs-toggle="tooltip"] {
+    position: relative;
+}
+
+.btn-group .btn {
+    margin-right: 2px;
+}
+
+.btn-group .btn:last-child {
+    margin-right: 0;
 }

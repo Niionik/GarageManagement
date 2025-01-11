@@ -1,70 +1,145 @@
-@model GarageManagement.Models.Car
-
+@model Car
 @{
-    ViewData["Title"] = "Szczegóły samochodu";
+    ViewData["Title"] = "Szczegóły Samochodu";
 }
 
-<h1>Szczegóły samochodu</h1>
-
-<div>
-    <dl class="row">
-        <dt class="col-sm-3">Marka</dt>
-        <dd class="col-sm-9">@Model.Brand</dd>
-
-        <dt class="col-sm-3">Model</dt>
-        <dd class="col-sm-9">@Model.Model</dd>
-
-        <dt class="col-sm-3">Rok produkcji</dt>
-        <dd class="col-sm-9">@Model.Year</dd>
-
-        <dt class="col-sm-3">Przebieg</dt>
-        <dd class="col-sm-9">@Model.Mileage km</dd>
-
-        <dt class="col-sm-3">Status</dt>
-        <dd class="col-sm-9">@Model.Status</dd>
-
-        <dt class="col-sm-3">Model kół</dt>
-        <dd class="col-sm-9">@(Model.WheelModel ?? "Nie określono")</dd>
-
-        <dt class="col-sm-3">Rozmiar opon</dt>
-        <dd class="col-sm-9">@(Model.TireSize ?? "Nie określono")</dd>
-
-        <dt class="col-sm-3">Marka opon</dt>
-        <dd class="col-sm-9">@(Model.TireBrand ?? "Nie określono")</dd>
-
-        <dt class="col-sm-3">Ostatnia wymiana oleju</dt>
-        <dd class="col-sm-9">@(Model.LastOilChange?.ToString("dd.MM.yyyy") ?? "Nie określono")</dd>
-
-        <dt class="col-sm-3">Ostatnia wymiana rozrządu</dt>
-        <dd class="col-sm-9">@(Model.LastTimingBeltChange?.ToString("dd.MM.yyyy") ?? "Nie określono")</dd>
-    </dl>
-
-    @if (Model.Maintenances != null && Model.Maintenances.Any())
-    {
-        <h3 class="mt-4">Historia napraw</h3>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Data</th>
-                    <th>Opis</th>
-                    <th>Koszt</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var maintenance in Model.Maintenances.OrderByDescending(m => m.Date))
-                {
-                    <tr>
-                        <td>@maintenance.Date.ToString("dd.MM.yyyy")</td>
-                        <td>@maintenance.Description</td>
-                        <td>@maintenance.Cost.ToString("C")</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    }
+<div class="section-header">
+    <h2><i class="fas fa-car"></i> @Model.Brand @Model.Model</h2>
 </div>
 
-<div class="mt-3">
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edytuj</a>
-    <a asp-action="Index" class="btn btn-secondary">Powrót do listy</a>
-</div> 
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle"></i> @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4>Informacje o Samochodzie</h4>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">Marka</dt>
+                    <dd class="col-sm-8">@Model.Brand</dd>
+
+                    <dt class="col-sm-4">Model</dt>
+                    <dd class="col-sm-8">@Model.Model</dd>
+
+                    <dt class="col-sm-4">Rok produkcji</dt>
+                    <dd class="col-sm-8">@Model.Year</dd>
+
+                    <dt class="col-sm-4">Przebieg</dt>
+                    <dd class="col-sm-8">@Model.Mileage km</dd>
+
+                    <dt class="col-sm-4">Status</dt>
+                    <dd class="col-sm-8">@Model.Status</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h4>Informacje o Oponach</h4>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">Model felg</dt>
+                    <dd class="col-sm-8">@Model.WheelModel</dd>
+
+                    <dt class="col-sm-4">Rozmiar opon</dt>
+                    <dd class="col-sm-8">@Model.TireSize</dd>
+
+                    <dt class="col-sm-4">Marka opon</dt>
+                    <dd class="col-sm-8">@Model.TireBrand</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4>Historia Napraw</h4>
+                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addMaintenanceModal">
+                    <i class="fas fa-plus"></i> Dodaj Naprawę
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Opis</th>
+                                <th>Koszt</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var maintenance in Model.Maintenances.OrderByDescending(m => m.Date))
+                            {
+                                <tr>
+                                    <td>@maintenance.Date.ToShortDateString()</td>
+                                    <td>@maintenance.Description</td>
+                                    <td>@maintenance.Cost.ToString("C")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal do dodawania naprawy -->
+<div class="modal fade" id="addMaintenanceModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="AddMaintenance" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Dodaj Naprawę</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="CarId" value="@Model.Id" />
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Data naprawy</label>
+                        <input type="date" name="Date" class="form-control" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Opis naprawy</label>
+                        <textarea name="Description" class="form-control" rows="3" required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Koszt naprawy</label>
+                        <div class="input-group">
+                            <span class="input-group-text">PLN</span>
+                            <input type="number" name="Cost" class="form-control" step="0.01" min="0" required />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+                    <button type="submit" class="btn btn-primary">Dodaj</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Automatycznie ustawia dzisiejszą datę w formularzu
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.querySelector('input[name="Date"]').value = today;
+        });
+    </script>
+} 

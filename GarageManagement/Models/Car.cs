@@ -25,7 +25,8 @@ namespace GarageManagement.Models
         [Required(ErrorMessage = "Pole Status jest wymagane")]
         [StringLength(20)]
         public string Status { get; set; }
-        public int GarageId { get; set; }
+
+        public int? GarageId { get; set; }
         public virtual Garage? Garage { get; set; }
 
         public string? WheelModel { get; set; }

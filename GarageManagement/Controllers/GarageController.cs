@@ -180,5 +180,57 @@ namespace GarageManagement.Controllers
         {
             return _context.Garages.Any(e => e.Id == id);
         }
+
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> Clone(int id)
+        {
+            var garage = await _context.Garages
+                .Include(g => g.GarageCars)
+                .ThenInclude(gc => gc.Car)
+                .FirstOrDefaultAsync(g => g.Id == id);
+
+            if (garage == null)
+            {
+                return NotFound();
+            }
+
+            // Tworzenie kopii garażu
+            var clonedGarage = new Garage
+            {
+                Name = $"{garage.Name} (Kopia)",
+                Location = garage.Location,
+                OwnerId = garage.OwnerId
+            };
+
+            _context.Garages.Add(clonedGarage);
+            await _context.SaveChangesAsync();
+
+            // Kopiowanie powiązanych samochodów
+            foreach (var garageCar in garage.GarageCars)
+            {
+                var clonedCar = new Car
+                {
+                    Brand = garageCar.Car.Brand,
+                    Model = garageCar.Car.Model,
+                    Year = garageCar.Car.Year,
+                    Mileage = garageCar.Car.Mileage,
+                    Status = garageCar.Car.Status,
+                    WheelModel = garageCar.Car.WheelModel,
+                    TireSize = garageCar.Car.TireSize,
+                    TireBrand = garageCar.Car.TireBrand,
+                    LastOilChange = garageCar.Car.LastOilChange,
+                    LastTimingBeltChange = garageCar.Car.LastTimingBeltChange,
+                    OwnerId = garageCar.Car.OwnerId,
+                    GarageId = clonedGarage.Id
+                };
+
+                _context.Cars.Add(clonedCar);
+                _context.GarageCars.Add(new GarageCar { GarageId = clonedGarage.Id, Car = clonedCar });
+            }
+
+            await _context.SaveChangesAsync();
+            TempData["Success"] = "Garaż został pomyślnie skopiowany.";
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
