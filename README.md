@@ -1,17 +1,56 @@
-# Dokumentacja Projektu GarageManagement
+# Garage Management System
 
 ## 1. Wprowadzenie
 
-Projekt GarageManagement to aplikacja do zarządzania garażami i samochodami, umożliwiająca użytkownikom dodawanie, edytowanie i usuwanie danych o pojazdach oraz zarządzanie kontami użytkowników. Aplikacja wspiera różne role użytkowników, takie jak właściciele i administratorzy, oferując różne poziomy dostępu do funkcji.
+Projekt GarageManagement to aplikacja do zarządzania garażami i samochodami. Kompleksowe rozwiązanie biznesowe stworzone z myślą o właścicielach warsztatów samochodowych, flotach firmowych oraz indywidualnych kolekcjonerach pojazdów. System odpowiada na rosnące potrzeby rynku w zakresie efektywnego zarządzania pojazdami i ich serwisowaniem.
+
+### Dlaczego GarageManagement?
+
+- **Optymalizacja kosztów**
+  - Śledzenie historii napraw pozwala na lepsze planowanie budżetu
+  - Monitorowanie terminów przeglądów zapobiega droższym naprawom
+  - Analiza kosztów napraw pomaga w podejmowaniu decyzji o wymianie pojazdu
+
+- **Zwiększenie efektywności**
+  - Szybki dostęp do pełnej historii każdego pojazdu
+  - Automatyczne przypomnienia o zbliżających się przeglądach
+  - Łatwe zarządzanie wieloma lokalizacjami (garażami)
+
+- **Bezpieczeństwo danych**
+  - Różne poziomy dostępu dla różnych ról użytkowników
+  - Pełna kontrola nad tym, kto ma dostęp do informacji
+  - Bezpieczne przechowywanie dokumentacji
+
+### Dla kogo?
+
+1. **Warsztaty samochodowe**
+   - Zarządzanie historią napraw klientów
+   - Planowanie terminów serwisowych
+   - Śledzenie części zamiennych
+
+2. **Firmy z flotą pojazdów**
+   - Kontrola kosztów utrzymania floty
+   - Zarządzanie wieloma lokalizacjami
+   - Raportowanie i analiza wydatków
+
+3. **Kolekcjonerzy i entuzjaści**
+   - Dokumentacja historii pojazdów
+   - Zarządzanie kolekcją
+   - Śledzenie wartości pojazdów
+
+4. **Wypożyczalnie samochodów**
+   - Zarządzanie flotą wynajmowanych pojazdów
+   - Śledzenie terminów przeglądów
+   - Kontrola stanu technicznego
 
 ## 2. Wymagania systemowe
 
 - **System operacyjny**: Windows, macOS, Linux
-- **.NET SDK**: 6.0 lub nowszy
+- **.NET SDK**: 8.0 lub nowszy
 - **Baza danych**: SQL Server
 - **Przeglądarka**: Chrome, Firefox, Edge
 
-## 3. Instalacja
+## 3. Instalacja i uruchomienie
 
 1. **Klonowanie repozytorium**:
    ```bash
@@ -20,21 +59,19 @@ Projekt GarageManagement to aplikacja do zarządzania garażami i samochodami, u
    ```
 
 2. **Konfiguracja bazy danych**:
-   - Upewnij się, że SQL Server jest uruchomiony.
-   - Zaktualizuj `appsettings.json` z odpowiednim connection stringiem.
+   - Upewnij się, że SQL Server jest uruchomiony
+   - Zaktualizuj `appsettings.json` z odpowiednim connection stringiem
+   - Wykonaj migracje: `dotnet ef database update`
 
-3. **Migracje bazy danych**:
-   ```bash
-   dotnet ef database update
-   ```
-
-4. **Uruchomienie aplikacji**:
+3. **Uruchomienie aplikacji**:
    ```bash
    dotnet run
    ```
+   Aplikacja będzie dostępna pod adresem `http://localhost:7123`
 
-## 4. Użytkownicy testowi
+## 4. Dostęp do systemu
 
+### Użytkownicy testowi
 - **Administrator**:
   - Email: admin@example.com
   - Hasło: AdminPassword123!
@@ -42,77 +79,149 @@ Projekt GarageManagement to aplikacja do zarządzania garażami i samochodami, u
   - Email: owner@example.com
   - Hasło: Password123!
 
-## 5. Opis funkcjonalności
+### Poziomy dostępu
+- **Zwykli użytkownicy**: Zarządzanie własnymi pojazdami i garażami
+- **Administratorzy**: Pełny dostęp do systemu, w tym zarządzanie użytkownikami
+
+## 5. Funkcjonalności systemu
+
+### Zarządzanie użytkownikami
+- Rejestracja i logowanie
+- Edycja profilu użytkownika
+- Zarządzanie uprawnieniami (dla administratorów)
+- Zmiana hasła
+
+### Zarządzanie garażami
+- Dodawanie i edycja garaży
+- Przypisywanie pojazdów
+- Zarządzanie lokalizacjami
+- Kopiowanie garaży (dla administratorów)
+
+### Zarządzanie pojazdami
+- Dodawanie i edycja pojazdów
+- Śledzenie stanu technicznego
+- Historia napraw i serwisów
+- Informacje o oponach i kołach
+
+### Historia napraw
+- Rejestrowanie napraw
+- Koszty serwisów
+- Terminy przeglądów
+- Statystyki i raporty
+
+## 5.1. Szczegółowy opis funkcjonalności
 
 ### Formularze
+- **Rejestracja**: Tworzenie nowych kont użytkowników z walidacją danych (email, imię, nazwisko, hasło)
+- **Logowanie**: Bezpieczny dostęp do aplikacji z wykorzystaniem ASP.NET Core Identity
+- **Dodawanie samochodu**: Kompleksowy formularz z walidacją danych technicznych pojazdu
+- **Edycja samochodu**: Aktualizacja danych pojazdu z zachowaniem historii zmian
+- **Dodawanie garażu**: Tworzenie nowych lokalizacji z mapowaniem i opisem
+- **Edycja garażu**: Zarządzanie istniejącymi lokalizacjami
+- **Dodawanie naprawy**: Szczegółowy formularz dokumentacji serwisowej
+- **Edycja naprawy**: Modyfikacja historii serwisowej z zachowaniem audytu zmian
 
-- **Rejestracja**: Umożliwia tworzenie nowych kont użytkowników. Formularz wymaga podania adresu e-mail, imienia, nazwiska oraz hasła.
-- **Logowanie**: Umożliwia użytkownikom dostęp do aplikacji po podaniu poprawnych danych logowania.
-- **Dodawanie samochodu**: Formularz do dodawania nowych pojazdów z walidacją danych, takich jak marka, model, rok produkcji, przebieg i status.
-- **Edycja samochodu**: Umożliwia użytkownikom aktualizację danych istniejących pojazdów.
-- **Dodawanie garażu**: Formularz do tworzenia nowych garaży, wymagający podania nazwy i lokalizacji.
-- **Edycja garażu**: Umożliwia użytkownikom aktualizację danych istniejących garaży.
-- **Dodawanie naprawy**: Formularz do rejestrowania nowych napraw pojazdów, w tym daty, opisu i kosztu.
-- **Edycja naprawy**: Umożliwia użytkownikom aktualizację danych istniejących napraw.
-- **Edycja profilu użytkownika**: Umożliwia użytkownikom aktualizację swoich danych osobowych, takich jak imię, nazwisko, adres e-mail i hasło.
-- **Zmiana hasła**: Formularz umożliwiający użytkownikom zmianę hasła po zalogowaniu.
+### Encje systemu
+- **User (Owner)**
+  - Zarządzanie danymi użytkowników
+  - System ról i uprawnień
+  - Historia aktywności
+  - Preferencje użytkownika
 
-### Encje
+- **Car**
+  - Pełne dane techniczne pojazdu
+  - Status i stan techniczny
+  - Historia przeglądów i napraw
+  - Informacje o oponach i częściach
 
-- **User**: Zarządza danymi użytkowników, w tym ich rolami i uprawnieniami.
-- **Car**: Przechowuje informacje o pojazdach, takie jak marka, model, rok produkcji, przebieg, status, oraz szczegóły dotyczące opon i ostatnich serwisów.
-- **Garage**: Przechowuje informacje o garażach, w tym nazwę, lokalizację i właściciela.
-- **Maintenance**: Rejestruje historię napraw pojazdów, w tym datę, opis i koszt naprawy.
+- **Garage**
+  - Dane lokalizacyjne
+  - Przypisane pojazdy
+  - Statystyki wykorzystania
+  - Historia zmian
 
-### Autoryzacja
+- **Maintenance**
+  - Szczegółowa historia napraw
+  - Koszty serwisowe
+  - Dokumentacja techniczna
+  - Przypomnienia i alerty
 
-- **Zwykli użytkownicy**: Mają dostęp do podstawowych funkcji, takich jak przeglądanie i zarządzanie własnymi pojazdami oraz garażami.
-- **Administratorzy**: Mają dostęp do zaawansowanych funkcji zarządzania, takich jak zarządzanie użytkownikami i ich rolami. Dodatkowo, administratorzy mogą dublować dane, co pozwala na szybkie tworzenie kopii istniejących rekordów, takich jak garaże i samochody.
+### System autoryzacji
+- **Użytkownicy standardowi**
+  - Zarządzanie własnymi pojazdami
+  - Dostęp do historii napraw
+  - Podstawowe raporty
+
+- **Administratorzy**
+  - Pełne zarządzanie systemem
+  - Zaawansowane raporty
+  - Klonowanie danych
+  - Zarządzanie użytkownikami
 
 ### WebAPI
+- **Operacje CRUD dla pojazdów**
+  - Dodawanie nowych pojazdów (Create)
+  - Pobieranie danych pojazdów (Read)
+  - Aktualizacja informacji (Update)
+  - Usuwanie pojazdów (Delete)
+- **Dokumentacja API w Swagger**
+- **Zabezpieczenia JWT**
+- **Rate limiting i caching**
 
-- **CRUD dla encji Car**:
-  - **Create**: Dodawanie nowego pojazdu.
-  - **Read**: Pobieranie informacji o pojazdach.
-  - **Update**: Aktualizacja danych pojazdu.
-  - **Delete**: Usuwanie pojazdu.
+## 6. Architektura systemu
 
-## 6. Uruchamianie aplikacji
+### Warstwy aplikacji
+- **Prezentacja (MVC)**
+  - Kontrolery: Obsługa żądań HTTP
+  - Widoki: Razor Pages z Bootstrap 5
+  - Modele: ViewModels dla formularzy
 
-Aplikację można uruchomić, wykonując polecenie `dotnet run` w katalogu głównym projektu. Po uruchomieniu aplikacja będzie dostępna pod adresem `http://localhost:7123`.
+- **Logika biznesowa**
+  - Serwisy do zarządzania danymi
+  - Walidacja biznesowa
+  - Autoryzacja i uprawnienia
 
-## 7. Uwagi końcowe
+- **Dostęp do danych**
+  - Entity Framework Core
+  - SQL Server
+  - Migracje bazy danych
 
-- Upewnij się, że wszystkie zależności są zainstalowane przed uruchomieniem aplikacji.
-- Regularnie aktualizuj dokumentację w miarę wprowadzania zmian w projekcie.
+### Bezpieczeństwo
+- ASP.NET Core Identity
+- Role i uprawnienia (RBAC)
+- Ochrona przed CSRF i XSS
+- Szyfrowanie danych
 
-## 8. Autorzy
+## 7. Plany rozwoju
 
-- Patrycja Opałacz 
-- Konrad Kopacz
+### Planowane funkcjonalności
+- Integracja z systemami płatności
+- Aplikacja mobilna
+- System powiadomień (SMS/Email)
+- Rozbudowane raporty i analityka
 
-## 9. Zakładki i ich przeznaczenie
+### Obszary doskonalenia
+- Optymalizacja wydajności
+- Rozszerzenie API
+- Dodatkowe integracje
+- Ulepszenia UX/UI
 
-### Strona główna
+## 8. Uwagi końcowe
 
-- **Opis**: Strona główna aplikacji, zawiera podstawowe informacje o projekcie i jego funkcjonalnościach.
+- Przed uruchomieniem upewnij się, że wszystkie zależności są zainstalowane
+- Regularnie wykonuj kopie zapasowe bazy danych
+- Aktualizuj dokumentację przy wprowadzaniu zmian
+- W razie problemów sprawdź logi aplikacji
 
-### Zarządzanie Garażami
+## 9. Autorzy
 
-- **Opis**: Umożliwia użytkownikom przeglądanie, dodawanie, edytowanie i usuwanie garaży. Każdy garaż jest powiązany z właścicielem.
+- **Patrycja Opałacz** (14968)
+  - Email: patrycja.opalacz@student.wat.edu.pl
+  - Rola: Główny developer
 
-### Zarządzanie Samochodami
+- **Konrad Kopacz**
+  - Rola: Developer
 
-- **Opis**: Umożliwia użytkownikom przeglądanie, dodawanie, edytowanie i usuwanie samochodów. Samochody mogą być przypisane do garaży.
+_Copyright © 2025 - Wszelkie prawa zastrzeżone_
 
-### Historia Napraw
 
-- **Opis**: Umożliwia użytkownikom przeglądanie historii napraw dla każdego pojazdu, w tym szczegóły dotyczące daty, opisu i kosztu naprawy.
-
-### Profil Użytkownika
-
-- **Opis**: Umożliwia użytkownikom przeglądanie i edytowanie swoich danych profilowych, takich jak imię, nazwisko i adres e-mail.
-
-### Panel Administratora
-
-- **Opis**: Dostępny tylko dla administratorów, umożliwia zarządzanie użytkownikami, ich rolami oraz przeglądanie raportów. Administratorzy mogą również dublować dane, co ułatwia zarządzanie dużą ilością informacji.
