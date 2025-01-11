@@ -216,11 +216,9 @@ Projekt GarageManagement to aplikacja do zarządzania garażami i samochodami. K
 ## 9. Autorzy
 
 - **Patrycja Opałacz** (14968)
-  - Email: patrycja.opalacz@student.wat.edu.pl
-  - Rola: Główny developer
+
 
 - **Konrad Kopacz**
-  - Rola: Developer
 
 _Copyright © 2025 - Wszelkie prawa zastrzeżone_
 
