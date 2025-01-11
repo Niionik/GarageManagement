@@ -115,7 +115,6 @@ CREATE TABLE Maintenance (
     FOREIGN KEY (CarId) REFERENCES Car(Id),
     FOREIGN KEY (OwnerId) REFERENCES AspNetUsers(Id)
 );
-
 -- Wstawianie przykładowych danych
 -- 1. Użytkownik
 INSERT INTO AspNetUsers (Id, UserName, NormalizedUserName, Email, NormalizedEmail, EmailConfirmed, PasswordHash, SecurityStamp, ConcurrencyStamp, PhoneNumber, PhoneNumberConfirmed, TwoFactorEnabled, LockoutEnd, LockoutEnabled, AccessFailedCount, FirstName, LastName)

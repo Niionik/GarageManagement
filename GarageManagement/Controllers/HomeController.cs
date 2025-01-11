@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using GarageManagement.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace GarageManagement.Controllers
 {
@@ -27,6 +28,19 @@ namespace GarageManagement.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        public IActionResult UserInfo()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            var isAuthenticated = User.Identity.IsAuthenticated;
+
+            ViewBag.UserId = userId;
+            ViewBag.UserEmail = userEmail;
+            ViewBag.IsAuthenticated = isAuthenticated;
+
+            return View();
         }
     }
 }

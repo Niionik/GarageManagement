@@ -26,7 +26,7 @@ namespace GarageManagement.Models
         [StringLength(20)]
         public string Status { get; set; }
         public int GarageId { get; set; }
-        public Garage? Garage { get; set; }
+        public virtual Garage? Garage { get; set; }
 
         public string? WheelModel { get; set; }
         public string? TireSize { get; set; }

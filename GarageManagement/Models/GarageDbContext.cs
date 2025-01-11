@@ -31,10 +31,20 @@ namespace GarageManagement.Models
             modelBuilder.Entity<Garage>(entity =>
             {
                 entity.Property(e => e.OwnerId)
-                    .HasColumnType("nvarchar(450)");
+                    .HasColumnType("nvarchar(128)");
 
                 entity.HasOne(d => d.Owner)
                     .WithMany(p => p.Garages)
+                    .HasForeignKey(d => d.OwnerId);
+            });
+
+            modelBuilder.Entity<Car>(entity =>
+            {
+                entity.Property(e => e.OwnerId)
+                    .HasColumnType("nvarchar(128)");
+
+                entity.HasOne(d => d.Owner)
+                    .WithMany(p => p.Cars)
                     .HasForeignKey(d => d.OwnerId);
             });
 
@@ -57,7 +67,7 @@ namespace GarageManagement.Models
                     .HasColumnType("decimal(10,2)");
 
                 entity.HasOne(d => d.Owner)
-                    .WithMany()
+                    .WithMany(p => p.Maintenances)
                     .HasForeignKey(d => d.OwnerId);
 
                 entity.HasOne(d => d.Car)
